@@ -66,26 +66,17 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
   const pageHeight = doc.internal.pageSize.getHeight();
   let yPosition = 20;
   
-  // Modern Color Palette
+  // Simple Color Palette
   const colors = {
     primary: [37, 99, 235],      // Blue-600
-    secondary: [99, 102, 241],   // Indigo-500
+    secondary: [75, 85, 99],     // Gray-600
     accent: [147, 51, 234],      // Purple-600
     success: [34, 197, 94],      // Green-500
     warning: [245, 158, 11],     // Amber-500
-    error: [239, 68, 68],        // Red-500
-    gray: {
-      50: [249, 250, 251],
-      100: [243, 244, 246],
-      200: [229, 231, 235],
-      300: [209, 213, 219],
-      400: [156, 163, 175],
-      500: [107, 114, 128],
-      600: [75, 85, 99],
-      700: [55, 65, 81],
-      800: [31, 41, 55],
-      900: [17, 24, 39]
-    }
+    light: [248, 250, 252],      // Gray-50
+    dark: [31, 41, 55],          // Gray-800
+    text: [17, 24, 39],          // Gray-900
+    textLight: [107, 114, 128]   // Gray-500
   };
   
   // Helper functions
@@ -100,11 +91,11 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
   const addText = (text: string, x: number, y: number, options: any = {}) => {
     const { 
       fontSize = 10, 
-      color = colors.gray[900], 
+      color = colors.text, 
       fontStyle = 'normal', 
       align = 'left', 
       maxWidth,
-      lineHeight = 1.4
+      lineHeight = 1.2
     } = options;
     
     doc.setFontSize(fontSize);
@@ -136,26 +127,13 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
     }
   };
   
-  const addSection = (title: string, y: number, icon?: string) => {
-    // Section background with gradient effect
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(15, y - 8, pageWidth - 30, 16, 2, 2, 'F');
-    
-    // Section accent line
+  const addSection = (title: string, y: number) => {
+    // Section line
     setFillColor(colors.primary);
-    doc.rect(15, y - 8, 4, 16, 'F');
-    
-    // Icon (if provided)
-    if (icon) {
-      addText(icon, 25, y, {
-        fontSize: 14,
-        color: colors.primary,
-        fontStyle: 'bold'
-      });
-    }
+    doc.rect(15, y - 2, pageWidth - 30, 1, 'F');
     
     // Section title
-    return addText(title, icon ? 35 : 25, y, {
+    return addText(title, 15, y + 5, {
       fontSize: 14,
       color: colors.primary,
       fontStyle: 'bold'
@@ -163,9 +141,12 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
   };
   
   const addBulletPoint = (text: string, x: number, y: number, options: any = {}) => {
-    // Modern bullet
-    setFillColor(colors.primary);
-    doc.circle(x + 2, y - 1.5, 1.5, 'F');
+    // Simple bullet
+    addText('•', x, y, {
+      fontSize: 12,
+      color: colors.primary,
+      fontStyle: 'bold'
+    });
     
     // Text
     return addText(text, x + 8, y, { 
@@ -176,45 +157,20 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
   };
   
   const addSkillBadge = (skill: string, x: number, y: number, color = colors.primary) => {
-    const textWidth = doc.getTextWidth(skill) + 8;
+    const textWidth = doc.getTextWidth(skill) + 6;
     
-    // Badge background with rounded corners
+    // Badge background
     setFillColor(color);
-    doc.roundedRect(x, y - 5, textWidth, 10, 3, 3, 'F');
+    doc.rect(x, y - 4, textWidth, 8, 'F');
     
     // Badge text
-    addText(skill, x + 4, y + 1, {
+    addText(skill, x + 3, y + 1, {
       fontSize: 8,
       color: [255, 255, 255],
       fontStyle: 'bold'
     });
     
-    return x + textWidth + 6;
-  };
-  
-  const addProgressBar = (label: string, percentage: number, x: number, y: number, width: number = 60) => {
-    // Label
-    addText(label, x, y, {
-      fontSize: 9,
-      color: colors.gray[700],
-      fontStyle: 'bold'
-    });
-    
-    // Background bar
-    setFillColor(colors.gray[200]);
-    doc.roundedRect(x, y + 3, width, 4, 2, 2, 'F');
-    
-    // Progress bar
-    setFillColor(colors.primary);
-    doc.roundedRect(x, y + 3, (width * percentage / 100), 4, 2, 2, 'F');
-    
-    // Percentage text
-    addText(`${percentage}%`, x + width + 5, y + 5, {
-      fontSize: 8,
-      color: colors.gray[600]
-    });
-    
-    return y + 12;
+    return x + textWidth + 5;
   };
   
   const checkPageBreak = (requiredSpace: number) => {
@@ -226,301 +182,200 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
     return false;
   };
   
-  // HEADER SECTION - Modern Design
-  const headerHeight = 80;
+  // HEADER SECTION - Clean Design
+  const headerHeight = 60;
   
-  // Header background with gradient simulation
-  for (let i = 0; i < headerHeight; i++) {
-    const ratio = i / headerHeight;
-    const r = Math.round(colors.primary[0] + (colors.secondary[0] - colors.primary[0]) * ratio);
-    const g = Math.round(colors.primary[1] + (colors.secondary[1] - colors.primary[1]) * ratio);
-    const b = Math.round(colors.primary[2] + (colors.secondary[2] - colors.primary[2]) * ratio);
-    
-    doc.setFillColor(r, g, b);
-    doc.rect(0, i, pageWidth, 1, 'F');
-  }
+  // Header background
+  setFillColor(colors.primary);
+  doc.rect(0, 0, pageWidth, headerHeight, 'F');
   
-  // Decorative geometric elements
-  setFillColor([255, 255, 255, 0.1]);
-  doc.circle(pageWidth - 25, 15, 12, 'F');
-  doc.circle(25, headerHeight - 15, 8, 'F');
-  
-  // Profile photo placeholder (modern circle)
-  setFillColor([255, 255, 255]);
-  doc.circle(35, 35, 18, 'F');
-  setFillColor(colors.gray[300]);
-  doc.circle(35, 35, 16, 'F');
-  
-  // Add initials in profile circle
-  const initials = data.personalInfo.name.split(' ').map(n => n[0]).join('').substring(0, 2);
-  addText(initials, 35, 38, {
-    fontSize: 16,
-    color: colors.primary,
-    fontStyle: 'bold',
-    align: 'center'
-  });
-  
-  // Name with modern typography
-  addText(data.personalInfo.name, 60, 25, {
+  // Name
+  addText(data.personalInfo.name, 20, 25, {
     fontSize: 24,
     color: [255, 255, 255],
     fontStyle: 'bold'
   });
   
-  // Title with accent
-  addText(data.personalInfo.title, 60, 35, {
+  // Title
+  addText(data.personalInfo.title, 20, 35, {
     fontSize: 12,
-    color: [255, 255, 255, 0.9]
+    color: [255, 255, 255]
   });
   
-  // Contact info in modern layout
-  const contactY = 50;
+  // Contact info
+  const contactY = 45;
   const contactItems = [
-    { icon: '📧', text: data.personalInfo.email, type: 'email' },
-    { icon: '📱', text: data.personalInfo.phone, type: 'phone' },
-    { icon: '📍', text: data.personalInfo.location, type: 'location' },
-    { icon: '🌐', text: data.personalInfo.website, type: 'website' }
+    data.personalInfo.email,
+    data.personalInfo.phone,
+    data.personalInfo.location,
+    data.personalInfo.website
   ];
   
+  let contactX = 20;
   contactItems.forEach((item, index) => {
-    const x = 60 + (index * 35);
-    
-    // Contact item background
-    setFillColor([255, 255, 255, 0.15]);
-    doc.roundedRect(x, contactY - 3, 32, 12, 2, 2, 'F');
-    
-    addText(item.icon, x + 2, contactY + 3, {
+    addText(item, contactX, contactY, {
       fontSize: 8,
       color: [255, 255, 255]
     });
-    
-    addText(item.text, x + 8, contactY + 3, {
-      fontSize: 6,
-      color: [255, 255, 255],
-      maxWidth: 22
-    });
+    contactX += doc.getTextWidth(item) + 15;
   });
   
-  yPosition = headerHeight + 20;
+  yPosition = headerHeight + 15;
   
   // PROFESSIONAL SUMMARY
-  yPosition = addSection(language === 'id' ? 'RINGKASAN PROFESIONAL' : 'PROFESSIONAL SUMMARY', yPosition, '👨‍💻');
+  yPosition = addSection(language === 'id' ? 'RINGKASAN PROFESIONAL' : 'PROFESSIONAL SUMMARY', yPosition);
   yPosition += 5;
   
-  // Summary in modern card
-  setFillColor(colors.gray[50]);
-  doc.roundedRect(20, yPosition - 3, pageWidth - 40, 30, 4, 4, 'F');
-  
-  // Add subtle border
-  doc.setDrawColor(colors.gray[200][0], colors.gray[200][1], colors.gray[200][2]);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(20, yPosition - 3, pageWidth - 40, 30, 4, 4, 'S');
-  
-  yPosition = addText(data.summary, 25, yPosition + 5, { 
+  yPosition = addText(data.summary, 20, yPosition, { 
     fontSize: 10, 
-    maxWidth: pageWidth - 50,
-    color: colors.gray[700],
-    lineHeight: 1.5
+    maxWidth: pageWidth - 40,
+    color: colors.text,
+    lineHeight: 1.4
   });
   
-  yPosition += 20;
+  yPosition += 15;
   
-  // GITHUB STATISTICS - Enhanced Design
-  checkPageBreak(40);
-  yPosition = addSection(language === 'id' ? 'STATISTIK GITHUB' : 'GITHUB STATISTICS', yPosition, '📊');
+  // GITHUB STATISTICS
+  checkPageBreak(30);
+  yPosition = addSection(language === 'id' ? 'STATISTIK GITHUB' : 'GITHUB STATISTICS', yPosition);
   yPosition += 8;
   
-  const statsBoxWidth = (pageWidth - 60) / 4;
   const statsData = [
-    { 
-      label: language === 'id' ? 'Repositori' : 'Repositories', 
-      value: data.githubStats.totalRepos, 
-      color: colors.primary,
-      icon: '📁'
-    },
-    { 
-      label: language === 'id' ? 'Bintang' : 'Stars', 
-      value: data.githubStats.totalStars, 
-      color: colors.warning,
-      icon: '⭐'
-    },
-    { 
-      label: 'Forks', 
-      value: data.githubStats.totalForks, 
-      color: colors.success,
-      icon: '🔀'
-    },
-    { 
-      label: language === 'id' ? 'Bahasa' : 'Languages', 
-      value: data.githubStats.languagesCount, 
-      color: colors.accent,
-      icon: '💻'
-    }
+    { label: language === 'id' ? 'Repositori' : 'Repositories', value: data.githubStats.totalRepos },
+    { label: language === 'id' ? 'Bintang' : 'Stars', value: data.githubStats.totalStars },
+    { label: 'Forks', value: data.githubStats.totalForks },
+    { label: language === 'id' ? 'Bahasa' : 'Languages', value: data.githubStats.languagesCount }
   ];
   
+  const statsWidth = (pageWidth - 60) / 4;
   statsData.forEach((stat, index) => {
-    const x = 25 + (index * statsBoxWidth);
+    const x = 20 + (index * statsWidth);
     
-    // Stat card with shadow effect
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(x, yPosition, statsBoxWidth - 8, 25, 4, 4, 'F');
-    
-    // Colored top border
-    setFillColor(stat.color);
-    doc.roundedRect(x, yPosition, statsBoxWidth - 8, 3, 4, 4, 'F');
-    
-    // Icon
-    addText(stat.icon, x + 5, yPosition + 12, {
-      fontSize: 12
-    });
+    // Stat box
+    setFillColor(colors.light);
+    doc.rect(x, yPosition, statsWidth - 5, 20, 'F');
     
     // Value
-    addText(stat.value.toString(), x + 15, yPosition + 12, {
-      fontSize: 16,
-      color: stat.color,
+    addText(stat.value.toString(), x + 5, yPosition + 8, {
+      fontSize: 14,
+      color: colors.primary,
       fontStyle: 'bold'
     });
     
     // Label
-    addText(stat.label, x + 5, yPosition + 20, {
+    addText(stat.label, x + 5, yPosition + 16, {
       fontSize: 8,
-      color: colors.gray[600]
+      color: colors.textLight
     });
   });
   
-  yPosition += 35;
+  yPosition += 30;
   
-  // EXPERIENCE with Timeline Design
-  checkPageBreak(50);
-  yPosition = addSection(language === 'id' ? 'PENGALAMAN KERJA' : 'WORK EXPERIENCE', yPosition, '💼');
-  yPosition += 10;
+  // EXPERIENCE
+  checkPageBreak(40);
+  yPosition = addSection(language === 'id' ? 'PENGALAMAN KERJA' : 'WORK EXPERIENCE', yPosition);
+  yPosition += 8;
   
-  data.experience.forEach((exp, index) => {
-    checkPageBreak(40);
-    
-    // Timeline design
-    setFillColor(colors.primary);
-    doc.circle(30, yPosition + 8, 4, 'F');
-    
-    // Timeline line
-    if (index < data.experience.length - 1) {
-      doc.setDrawColor(colors.gray[300][0], colors.gray[300][1], colors.gray[300][2]);
-      doc.setLineWidth(2);
-      doc.line(30, yPosition + 12, 30, yPosition + 45);
-    }
-    
-    // Experience card
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(40, yPosition, pageWidth - 60, 35, 4, 4, 'F');
+  data.experience.forEach((exp) => {
+    checkPageBreak(35);
     
     // Job title
-    yPosition = addText(exp.title, 45, yPosition + 10, {
+    yPosition = addText(exp.title, 20, yPosition, {
       fontSize: 12,
       fontStyle: 'bold',
       color: colors.primary
     });
     
     // Company and period
-    yPosition = addText(`${exp.company} | ${exp.period}`, 45, yPosition + 2, {
+    yPosition = addText(`${exp.company} | ${exp.period}`, 20, yPosition + 2, {
       fontSize: 10,
-      color: colors.gray[600],
+      color: colors.textLight,
       fontStyle: 'italic'
     });
     
     // Description
     exp.description.forEach((desc) => {
-      yPosition = addBulletPoint(desc, 50, yPosition + 5, { 
+      yPosition = addBulletPoint(desc, 25, yPosition + 4, { 
         fontSize: 9, 
-        color: colors.gray[700] 
+        color: colors.text 
       });
     });
     
-    yPosition += 15;
+    yPosition += 10;
   });
   
   // EDUCATION
-  checkPageBreak(35);
-  yPosition = addSection(language === 'id' ? 'PENDIDIKAN' : 'EDUCATION', yPosition, '🎓');
-  yPosition += 10;
+  checkPageBreak(25);
+  yPosition = addSection(language === 'id' ? 'PENDIDIKAN' : 'EDUCATION', yPosition);
+  yPosition += 8;
   
   data.education.forEach((edu) => {
-    checkPageBreak(25);
+    checkPageBreak(20);
     
-    // Education card
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 22, 4, 4, 'F');
-    
-    // Graduation cap icon
-    addText('🎓', 25, yPosition + 8, { fontSize: 12 });
-    
-    yPosition = addText(edu.degree, 35, yPosition + 8, {
+    yPosition = addText(edu.degree, 20, yPosition, {
       fontSize: 11,
       fontStyle: 'bold',
       color: colors.primary
     });
     
-    yPosition = addText(`${edu.school} | ${edu.period}`, 35, yPosition + 2, {
+    yPosition = addText(`${edu.school} | ${edu.period}`, 20, yPosition + 2, {
       fontSize: 10,
-      color: colors.gray[600]
+      color: colors.textLight
     });
     
     if (edu.status) {
-      yPosition = addText(edu.status, 35, yPosition + 2, {
+      yPosition = addText(edu.status, 20, yPosition + 2, {
         fontSize: 9,
         color: colors.success,
         fontStyle: 'italic'
       });
     }
     
-    yPosition += 12;
+    yPosition += 8;
   });
   
-  // TECHNICAL SKILLS - Enhanced with Progress Bars
-  checkPageBreak(60);
-  yPosition = addSection(language === 'id' ? 'KEAHLIAN TEKNIS' : 'TECHNICAL SKILLS', yPosition, '⚡');
-  yPosition += 10;
+  // TECHNICAL SKILLS
+  checkPageBreak(50);
+  yPosition = addSection(language === 'id' ? 'KEAHLIAN TEKNIS' : 'TECHNICAL SKILLS', yPosition);
+  yPosition += 8;
   
-  // Programming Languages with skill levels
+  // Programming Languages
   yPosition = addText(language === 'id' ? 'Bahasa Pemrograman:' : 'Programming Languages:', 20, yPosition, {
     fontSize: 11,
     fontStyle: 'bold',
     color: colors.primary
   });
-  yPosition += 8;
+  yPosition += 5;
   
-  const programmingSkills = [
-    { name: 'JavaScript', level: 90 },
-    { name: 'TypeScript', level: 85 },
-    { name: 'Python', level: 75 },
-    { name: 'PHP', level: 70 }
-  ];
-  
-  programmingSkills.forEach((skill, index) => {
-    const x = 25 + (index % 2) * 90;
-    if (index % 2 === 0 && index > 0) yPosition += 15;
-    yPosition = addProgressBar(skill.name, skill.level, x, yPosition);
+  let currentX = 25;
+  data.skills.languages.forEach((lang) => {
+    if (currentX + doc.getTextWidth(lang) + 15 > pageWidth - 20) {
+      currentX = 25;
+      yPosition += 12;
+    }
+    currentX = addSkillBadge(lang, currentX, yPosition, colors.primary);
   });
   
-  yPosition += 10;
+  yPosition += 15;
   
-  // Frameworks as badges
+  // Frameworks
   yPosition = addText(language === 'id' ? 'Framework & Library:' : 'Frameworks & Libraries:', 20, yPosition, {
     fontSize: 11,
     fontStyle: 'bold',
     color: colors.accent
   });
-  yPosition += 8;
+  yPosition += 5;
   
-  let currentX = 25;
+  currentX = 25;
   data.skills.frameworks.forEach((framework) => {
     if (currentX + doc.getTextWidth(framework) + 15 > pageWidth - 20) {
       currentX = 25;
-      yPosition += 15;
+      yPosition += 12;
     }
     currentX = addSkillBadge(framework, currentX, yPosition, colors.accent);
   });
   
-  yPosition += 20;
+  yPosition += 15;
   
   // Tools
   yPosition = addText('Tools & Technologies:', 20, yPosition, {
@@ -528,225 +383,167 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
     fontStyle: 'bold',
     color: colors.success
   });
-  yPosition += 8;
+  yPosition += 5;
   
   currentX = 25;
   data.skills.tools.forEach((tool) => {
     if (currentX + doc.getTextWidth(tool) + 15 > pageWidth - 20) {
       currentX = 25;
-      yPosition += 15;
+      yPosition += 12;
     }
     currentX = addSkillBadge(tool, currentX, yPosition, colors.success);
   });
   
-  yPosition += 25;
+  yPosition += 20;
   
-  // FEATURED PROJECTS - Enhanced Cards
-  checkPageBreak(50);
-  yPosition = addSection(language === 'id' ? 'PROYEK UNGGULAN' : 'FEATURED PROJECTS', yPosition, '🚀');
-  yPosition += 10;
+  // FEATURED PROJECTS
+  checkPageBreak(40);
+  yPosition = addSection(language === 'id' ? 'PROYEK UNGGULAN' : 'FEATURED PROJECTS', yPosition);
+  yPosition += 8;
   
-  data.projects.slice(0, 4).forEach((project, index) => {
-    checkPageBreak(35);
+  data.projects.slice(0, 4).forEach((project) => {
+    checkPageBreak(30);
     
-    const projectColors = [colors.primary, colors.accent, colors.success, colors.warning];
-    const projectColor = projectColors[index % projectColors.length];
+    // Project box
+    setFillColor(colors.light);
+    doc.rect(20, yPosition, pageWidth - 40, 25, 'F');
     
-    // Project card with modern design
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 32, 4, 4, 'F');
-    
-    // Colored accent bar
-    setFillColor(projectColor);
-    doc.roundedRect(20, yPosition, 4, 32, 4, 4, 'F');
-    
-    // Project icon
-    addText('🚀', 30, yPosition + 10, { fontSize: 12 });
-    
-    yPosition = addText(project.name, 40, yPosition + 10, {
+    yPosition = addText(project.name, 25, yPosition + 8, {
       fontSize: 12,
       fontStyle: 'bold',
-      color: projectColor
+      color: colors.primary
     });
     
     if (project.url) {
-      yPosition = addText(`🔗 ${project.url}`, 40, yPosition + 2, {
+      yPosition = addText(project.url, 25, yPosition + 2, {
         fontSize: 8,
-        color: colors.gray[600]
+        color: colors.textLight
       });
     }
     
-    yPosition = addText(project.description, 40, yPosition + 3, {
+    yPosition = addText(project.description, 25, yPosition + 3, {
       fontSize: 9,
-      maxWidth: pageWidth - 65,
-      color: colors.gray[700]
+      maxWidth: pageWidth - 50,
+      color: colors.text
     });
     
-    // Technologies as small badges
-    yPosition += 5;
-    currentX = 40;
-    project.technologies.slice(0, 4).forEach((tech) => {
+    // Technologies
+    yPosition += 3;
+    currentX = 25;
+    project.technologies.forEach((tech) => {
       if (currentX + doc.getTextWidth(tech) + 10 > pageWidth - 25) {
-        currentX = 40;
-        yPosition += 12;
+        currentX = 25;
+        yPosition += 10;
       }
-      currentX = addSkillBadge(tech, currentX, yPosition, colors.gray[400]);
+      currentX = addSkillBadge(tech, currentX, yPosition, colors.textLight);
     });
     
-    yPosition += 18;
+    yPosition += 15;
   });
   
-  // ACHIEVEMENTS with Medal Design
-  checkPageBreak(50);
-  yPosition = addSection(language === 'id' ? 'PENCAPAIAN & PENGHARGAAN' : 'ACHIEVEMENTS & AWARDS', yPosition, '🏆');
-  yPosition += 10;
+  // ACHIEVEMENTS
+  checkPageBreak(40);
+  yPosition = addSection(language === 'id' ? 'PENCAPAIAN & PENGHARGAAN' : 'ACHIEVEMENTS & AWARDS', yPosition);
+  yPosition += 8;
   
-  data.achievements.slice(0, 5).forEach((achievement, index) => {
-    checkPageBreak(25);
+  data.achievements.slice(0, 5).forEach((achievement) => {
+    checkPageBreak(20);
     
-    // Medal based on position
-    let medal = '🥉';
-    let medalColor = colors.warning;
-    if (achievement.position.includes('1st') || achievement.position.includes('Juara 1')) {
-      medal = '🥇';
-      medalColor = colors.warning;
-    } else if (achievement.position.includes('2nd') || achievement.position.includes('Juara 2')) {
-      medal = '🥈';
-      medalColor = colors.gray[400];
-    }
+    // Achievement box
+    setFillColor(colors.light);
+    doc.rect(20, yPosition, pageWidth - 40, 18, 'F');
     
-    // Achievement card
-    setFillColor(colors.gray[50]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 22, 4, 4, 'F');
-    
-    // Medal icon
-    addText(medal, 25, yPosition + 10, { fontSize: 14 });
-    
-    yPosition = addText(achievement.title, 40, yPosition + 8, {
+    yPosition = addText(achievement.title, 25, yPosition + 6, {
       fontSize: 10,
       fontStyle: 'bold',
       color: colors.primary,
-      maxWidth: pageWidth - 70
+      maxWidth: pageWidth - 50
     });
     
-    yPosition = addText(`${achievement.organization} | ${achievement.date}`, 40, yPosition + 2, {
+    yPosition = addText(`${achievement.organization} | ${achievement.date}`, 25, yPosition + 2, {
       fontSize: 9,
-      color: colors.gray[600]
+      color: colors.textLight
     });
     
-    yPosition = addText(achievement.position, 40, yPosition + 2, {
+    yPosition = addText(achievement.position, 25, yPosition + 2, {
       fontSize: 9,
-      color: medalColor,
+      color: colors.warning,
       fontStyle: 'bold'
     });
     
-    yPosition += 12;
+    yPosition += 8;
   });
   
   // CERTIFICATES
   if (data.certificates.length > 0) {
-    checkPageBreak(40);
-    yPosition = addSection(language === 'id' ? 'SERTIFIKASI PROFESIONAL' : 'PROFESSIONAL CERTIFICATIONS', yPosition, '📜');
-    yPosition += 10;
-    
-    // Certificates in grid layout
-    const certPerRow = 2;
-    const certWidth = (pageWidth - 60) / certPerRow;
+    checkPageBreak(30);
+    yPosition = addSection(language === 'id' ? 'SERTIFIKASI PROFESIONAL' : 'PROFESSIONAL CERTIFICATIONS', yPosition);
+    yPosition += 8;
     
     data.certificates.slice(0, 8).forEach((cert, index) => {
-      const row = Math.floor(index / certPerRow);
-      const col = index % certPerRow;
-      const x = 25 + (col * certWidth);
-      const y = yPosition + (row * 20);
+      checkPageBreak(12);
       
-      checkPageBreak(25);
+      if (index % 2 === 0) {
+        setFillColor(colors.light);
+        doc.rect(20, yPosition - 2, pageWidth - 40, 10, 'F');
+      }
       
-      // Certificate card
-      setFillColor(colors.gray[50]);
-      doc.roundedRect(x, y, certWidth - 5, 18, 3, 3, 'F');
-      
-      // Certificate icon
-      addText('📋', x + 3, y + 8, { fontSize: 10 });
-      
-      addText(cert.name, x + 12, y + 6, {
-        fontSize: 8,
+      yPosition = addText(cert.name, 25, yPosition + 3, {
+        fontSize: 9,
         fontStyle: 'bold',
-        color: colors.primary,
-        maxWidth: certWidth - 20
+        color: colors.primary
       });
       
-      addText(`${cert.issuer} • ${cert.date}`, x + 12, y + 12, {
-        fontSize: 7,
-        color: colors.gray[600],
-        maxWidth: certWidth - 20
+      yPosition = addText(`${cert.issuer} • ${cert.date}`, 25, yPosition + 2, {
+        fontSize: 8,
+        color: colors.textLight
       });
+      
+      yPosition += 3;
     });
-    
-    yPosition += Math.ceil(data.certificates.slice(0, 8).length / certPerRow) * 20 + 10;
   }
   
   // UNIQUE THINGS
-  checkPageBreak(30);
-  yPosition = addSection(language === 'id' ? 'HAL UNIK TENTANG SAYA' : 'UNIQUE THINGS ABOUT ME', yPosition, '✨');
-  yPosition += 10;
+  checkPageBreak(25);
+  yPosition = addSection(language === 'id' ? 'HAL UNIK TENTANG SAYA' : 'UNIQUE THINGS ABOUT ME', yPosition);
+  yPosition += 8;
   
-  data.uniqueThings.forEach((thing, index) => {
-    checkPageBreak(12);
-    
-    // Unique thing with icon
-    const icons = ['🎯', '🎨', '☕', '📚', '🚀'];
-    const icon = icons[index % icons.length];
-    
-    addText(icon, 25, yPosition + 5, { fontSize: 10 });
-    yPosition = addBulletPoint(thing, 35, yPosition + 5, { 
+  data.uniqueThings.forEach((thing) => {
+    checkPageBreak(10);
+    yPosition = addBulletPoint(thing, 25, yPosition + 5, { 
       fontSize: 10, 
-      color: colors.gray[700] 
+      color: colors.text 
     });
   });
   
   yPosition += 15;
   
-  // ENHANCED FOOTER
-  const footerY = pageHeight - 25;
+  // FOOTER
+  const footerY = pageHeight - 20;
   
   // Footer background
-  setFillColor(colors.gray[800]);
-  doc.rect(0, footerY - 8, pageWidth, 33, 'F');
+  setFillColor(colors.dark);
+  doc.rect(0, footerY - 5, pageWidth, 25, 'F');
   
-  // Footer content with modern layout
+  // Footer content
   const footerText = language === 'id' 
     ? `CV dibuat otomatis dari Portfolio Website KOU • ${new Date().toLocaleDateString('id-ID')} • https://kou.my.id`
     : `CV generated automatically from KOU Portfolio Website • ${new Date().toLocaleDateString('en-US')} • https://kou.my.id`;
   
-  addText(footerText, pageWidth / 2, footerY, {
+  addText(footerText, pageWidth / 2, footerY + 5, {
     fontSize: 8,
     color: [255, 255, 255],
     align: 'center'
   });
   
-  // QR Code placeholder
-  setFillColor([255, 255, 255]);
-  doc.roundedRect(pageWidth - 25, footerY - 5, 15, 15, 2, 2, 'F');
-  addText('QR', pageWidth - 17.5, footerY + 2, {
-    fontSize: 8,
-    color: colors.gray[800],
-    align: 'center'
-  });
-  
-  // Page numbers with modern styling
+  // Page numbers
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    
-    // Page number background
-    setFillColor(colors.primary);
-    doc.circle(pageWidth - 15, pageHeight - 15, 8, 'F');
-    
-    addText(`${i}`, pageWidth - 15, pageHeight - 12, {
-      fontSize: 10,
-      color: [255, 255, 255],
-      fontStyle: 'bold',
-      align: 'center'
+    addText(`${i} / ${pageCount}`, pageWidth - 20, pageHeight - 10, {
+      fontSize: 8,
+      color: colors.textLight,
+      align: 'right'
     });
   }
   
@@ -783,10 +580,7 @@ export const downloadCV = (language: 'en' | 'id' = 'en') => {
             : 'Implemented modern features and responsive design',
           language === 'id'
             ? 'Berkolaborasi dengan tim untuk mengoptimalkan performa aplikasi'
-            : 'Collaborated with team to optimize application performance',
-          language === 'id'
-            ? 'Mengintegrasikan database dan API untuk fungsionalitas penuh'
-            : 'Integrated database and APIs for full functionality'
+            : 'Collaborated with team to optimize application performance'
         ]
       }
     ],
@@ -832,15 +626,6 @@ export const downloadCV = (language: 'en' | 'id' = 'en') => {
         technologies: ['GitHub API', 'React', 'TypeScript', 'REST API'],
         stars: 12,
         forks: 4
-      },
-      {
-        name: 'Certificate Management System',
-        description: language === 'id'
-          ? 'Sistem manajemen sertifikat dengan fitur auto-detection PDF, preview modal, dan OCR untuk ekstraksi metadata sertifikat.'
-          : 'Certificate management system with PDF auto-detection, preview modal, and OCR for certificate metadata extraction.',
-        technologies: ['PDF.js', 'OCR', 'React', 'File Management'],
-        stars: 6,
-        forks: 1
       }
     ],
     achievements: [
@@ -864,20 +649,6 @@ export const downloadCV = (language: 'en' | 'id' = 'en') => {
         date: 'September 2024',
         level: language === 'id' ? 'Biologi SMA' : 'Biology SMA',
         position: 'Top 200'
-      },
-      {
-        title: language === 'id' ? 'CBP SummerFest 2025 Bank Indonesia Prov. Kalimantan Timur' : 'CBP SummerFest 2025 Bank Indonesia East Kalimantan',
-        organization: language === 'id' ? 'Bank Indonesia Prov. Kalimantan Timur' : 'Bank Indonesia East Kalimantan',
-        date: 'August 2024',
-        level: language === 'id' ? 'Konten Kreatif - Tingkat Provinsi' : 'Creative Content - Provincial Level',
-        position: 'Honorable Mention 1'
-      },
-      {
-        title: language === 'id' ? 'CBP SummerFest 2025 Bank Indonesia Prov. Kalimantan Timur' : 'CBP SummerFest 2025 Bank Indonesia East Kalimantan',
-        organization: language === 'id' ? 'Bank Indonesia Prov. Kalimantan Timur' : 'Bank Indonesia East Kalimantan',
-        date: 'August 2024',
-        level: language === 'id' ? 'Konten Kreatif - Tingkat Kota' : 'Creative Content - City Level',
-        position: language === 'id' ? 'Juara 3' : '3rd Place'
       }
     ],
     certificates: [
@@ -900,34 +671,13 @@ export const downloadCV = (language: 'en' | 'id' = 'en') => {
         name: language === 'id' ? 'Prinsip Desain UI/UX' : 'UI/UX Design Principles',
         issuer: 'Google',
         date: 'December 2023'
-      },
-      {
-        name: language === 'id' ? 'Dasar-dasar Fotografi Digital' : 'Digital Photography Basics',
-        issuer: 'Adobe',
-        date: 'November 2023'
-      },
-      {
-        name: language === 'id' ? 'Penguasaan Editing Video' : 'Video Editing Mastery',
-        issuer: 'Udemy',
-        date: 'October 2023'
-      },
-      {
-        name: language === 'id' ? 'Pemrograman Python' : 'Python Programming',
-        issuer: 'Python Institute',
-        date: 'September 2023'
-      },
-      {
-        name: language === 'id' ? 'Manajemen Database' : 'Database Management',
-        issuer: 'Oracle',
-        date: 'August 2023'
       }
     ],
     uniqueThings: [
       language === 'id' ? 'Belajar coding sejak kelas 1 SMP' : 'Learned coding since 1st Grade Junior High School',
       language === 'id' ? 'Seorang Otaku & Kpopers' : 'An Otaku & Kpopers',
       language === 'id' ? 'Suka minum Kopi' : 'Loves to drink Coffee',
-      language === 'id' ? 'Passionate dalam fotografi dan videografi' : 'Passionate about photography and videography',
-      language === 'id' ? 'Selalu eager untuk belajar teknologi baru' : 'Always eager to learn new technologies'
+      language === 'id' ? 'Passionate dalam fotografi dan videografi' : 'Passionate about photography and videography'
     ],
     githubStats: {
       totalRepos: 25,
