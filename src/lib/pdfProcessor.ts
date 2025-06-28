@@ -1,8 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 
-// Set worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Set worker source to public directory
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 export interface PDFMetadata {
   title?: string;
