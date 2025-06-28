@@ -32,105 +32,59 @@ const CertificatesSection: React.FC = () => {
   const [pdfError, setPdfError] = useState(false);
   const certificatesPerPage = 6;
 
-  // Mock certificates data - replace with actual auto-detection
-  const mockCertificates: CertificateFile[] = [
-    {
-      id: 'web-development-fundamentals',
-      name: 'Web Development Fundamentals',
-      fileName: 'web-development-fundamentals.pdf',
-      pdfUrl: '/certificates/web-development-fundamentals.pdf',
-      metadata: {
-        issuer: 'Coursera',
-        date: 'March 2024',
-        title: 'Web Development Fundamentals',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'javascript-es6-certification',
-      name: 'JavaScript ES6+ Certification',
-      fileName: 'javascript-es6-certification.pdf',
-      pdfUrl: '/certificates/javascript-es6-certification.pdf',
-      metadata: {
-        issuer: 'freeCodeCamp',
-        date: 'February 2024',
-        title: 'JavaScript ES6+ Certification',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'react-developer-certificate',
-      name: 'React Developer Certificate',
-      fileName: 'react-developer-certificate.pdf',
-      pdfUrl: '/certificates/react-developer-certificate.pdf',
-      metadata: {
-        issuer: 'Meta',
-        date: 'January 2024',
-        title: 'React Developer Certificate',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'ui-ux-design-principles',
-      name: 'UI/UX Design Principles',
-      fileName: 'ui-ux-design-principles.pdf',
-      pdfUrl: '/certificates/ui-ux-design-principles.pdf',
-      metadata: {
-        issuer: 'Google',
-        date: 'December 2023',
-        title: 'UI/UX Design Principles',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'digital-photography-basics',
-      name: 'Digital Photography Basics',
-      fileName: 'digital-photography-basics.pdf',
-      pdfUrl: '/certificates/digital-photography-basics.pdf',
-      metadata: {
-        issuer: 'Adobe',
-        date: 'November 2023',
-        title: 'Digital Photography Basics',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'video-editing-mastery',
-      name: 'Video Editing Mastery',
-      fileName: 'video-editing-mastery.pdf',
-      pdfUrl: '/certificates/video-editing-mastery.pdf',
-      metadata: {
-        issuer: 'Udemy',
-        date: 'October 2023',
-        title: 'Video Editing Mastery',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'python-programming',
-      name: 'Python Programming',
-      fileName: 'python-programming.pdf',
-      pdfUrl: '/certificates/python-programming.pdf',
-      metadata: {
-        issuer: 'Python Institute',
-        date: 'September 2023',
-        title: 'Python Programming',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
-    },
-    {
-      id: 'database-management',
-      name: 'Database Management',
-      fileName: 'database-management.pdf',
-      pdfUrl: '/certificates/database-management.pdf',
-      metadata: {
-        issuer: 'Oracle',
-        date: 'August 2023',
-        title: 'Database Management',
-        recipient: 'Al-Ghani Desta Setyawan'
-      }
+  // Generate certificate data for certificate-alghani-(1) through (22)
+  const generateCertificateData = (): CertificateFile[] => {
+    const certificates: CertificateFile[] = [];
+    
+    // Certificate titles and issuers (you can customize these)
+    const certificateInfo = [
+      { title: 'Web Development Fundamentals', issuer: 'Coursera', date: 'March 2024' },
+      { title: 'JavaScript ES6+ Certification', issuer: 'freeCodeCamp', date: 'February 2024' },
+      { title: 'React Developer Certificate', issuer: 'Meta', date: 'January 2024' },
+      { title: 'UI/UX Design Principles', issuer: 'Google', date: 'December 2023' },
+      { title: 'Digital Photography Basics', issuer: 'Adobe', date: 'November 2023' },
+      { title: 'Video Editing Mastery', issuer: 'Udemy', date: 'October 2023' },
+      { title: 'Python Programming', issuer: 'Python Institute', date: 'September 2023' },
+      { title: 'Database Management', issuer: 'Oracle', date: 'August 2023' },
+      { title: 'Node.js Backend Development', issuer: 'MongoDB University', date: 'July 2023' },
+      { title: 'Responsive Web Design', issuer: 'freeCodeCamp', date: 'June 2023' },
+      { title: 'Git Version Control', issuer: 'GitHub', date: 'May 2023' },
+      { title: 'Agile Project Management', issuer: 'Scrum Alliance', date: 'April 2023' },
+      { title: 'TypeScript Advanced Concepts', issuer: 'Microsoft', date: 'March 2023' },
+      { title: 'CSS Grid and Flexbox', issuer: 'CSS-Tricks', date: 'February 2023' },
+      { title: 'API Development with REST', issuer: 'Postman', date: 'January 2023' },
+      { title: 'Mobile App Development', issuer: 'React Native', date: 'December 2022' },
+      { title: 'Cloud Computing Basics', issuer: 'AWS', date: 'November 2022' },
+      { title: 'Cybersecurity Fundamentals', issuer: 'CompTIA', date: 'October 2022' },
+      { title: 'Machine Learning Introduction', issuer: 'Stanford Online', date: 'September 2022' },
+      { title: 'Data Visualization', issuer: 'Tableau', date: 'August 2022' },
+      { title: 'DevOps Essentials', issuer: 'Docker', date: 'July 2022' },
+      { title: 'Software Testing Automation', issuer: 'Selenium', date: 'June 2022' }
+    ];
+
+    for (let i = 1; i <= 22; i++) {
+      const info = certificateInfo[i - 1] || {
+        title: `Professional Certificate ${i}`,
+        issuer: 'Professional Institute',
+        date: '2023'
+      };
+
+      certificates.push({
+        id: `certificate-alghani-${i}`,
+        name: info.title,
+        fileName: `certificate-alghani-(${i}).pdf`,
+        pdfUrl: `/certificates/certificate-alghani-(${i}).pdf`,
+        metadata: {
+          issuer: info.issuer,
+          date: info.date,
+          title: info.title,
+          recipient: 'Al-Ghani Desta Setyawan'
+        }
+      });
     }
-  ];
+    
+    return certificates;
+  };
 
   useEffect(() => {
     loadCertificates();
@@ -141,7 +95,26 @@ const CertificatesSection: React.FC = () => {
     try {
       // Simulate loading delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setCertificates(mockCertificates);
+      
+      // Generate certificate data
+      const certificateData = generateCertificateData();
+      
+      // Verify which files actually exist
+      const existingCertificates: CertificateFile[] = [];
+      
+      for (const cert of certificateData) {
+        try {
+          // Check if file exists by trying to fetch it
+          const response = await fetch(cert.pdfUrl, { method: 'HEAD' });
+          if (response.ok) {
+            existingCertificates.push(cert);
+          }
+        } catch (error) {
+          console.warn(`Certificate file ${cert.fileName} not found`);
+        }
+      }
+      
+      setCertificates(existingCertificates);
     } catch (error) {
       console.error('Error loading certificates:', error);
     } finally {
