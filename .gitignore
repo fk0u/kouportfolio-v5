@@ -1,0 +1,862 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# API Keys and Tokens (CRITICAL - Prevent token exposure)
+.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+config/secrets.js
+config/keys.js
+
+# GitHub Token Protection
+GITHUB_TOKEN
+VITE_GITHUB_TOKEN
+.github-token
+github-token.txt
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Certificate files (if containing sensitive data)
+certificates/private/
+*.p12
+*.pfx
+*.key
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Pytest
+.pytest_cache/
+.tox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Local development
+.local
+local/
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Supabase
+.supabase/
+
+# Analytics and tracking
+analytics.json
+tracking.json
+
+# Generated files
+generated/
+auto-generated/
+
+# Documentation build
+docs/_build/
+site/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Ignore all .env files except .env.example
+.env*
+!.env.example
+
+# Personal notes and todos
+TODO.md
+NOTES.md
+personal-notes/
+
+# Sensitive configuration files
+config/production.json
+config/staging.json
+config/development.json
+
+# API documentation with sensitive info
+api-docs/private/
+
+# Deployment scripts with credentials
+deploy/
+deployment/
+scripts/deploy.sh
+
+# Docker secrets
+docker-compose.override.yml
+.dockerignore
+
+# Kubernetes secrets
+k8s/secrets/
+*.secret.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+vault_pass.txt
+
+# AWS
+.aws/
+aws-credentials.json
+
+# Google Cloud
+gcloud-service-key.json
+.gcloud/
+
+# Azure
+.azure/
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.pem
+
+# GPG keys
+*.gpg
+*.asc
+
+# Certificate authorities
+ca-certificates/
+ssl/
+
+# Local development certificates
+localhost.crt
+localhost.key
+
+# Package manager lock files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Generated CV files (if you want to exclude them)
+# generated-cv/
+# *.pdf
+
+# Temporary image files
+*.tmp.jpg
+*.tmp.png
+*.tmp.gif
+*.tmp.webp
+
+# Cache directories
+.cache/
+cache/
+.temp/
+
+# Sentry
+.sentryclirc
+
+# Webpack
+.webpack/
+
+# Rollup
+.rollup.cache/
+
+# Snowpack
+.snowpack/
+
+# Vite
+.vite/
+
+# SvelteKit
+.svelte-kit/
+
+# Astro
+.astro/
+
+# Remix
+.remix/
+
+# Solid
+.solid/
+
+# Qwik
+.qwik/
+
+# Capacitor
+.capacitor/
+capacitor.config.json
+
+# Cordova
+platforms/
+plugins/
+www/
+
+# Electron
+dist_electron/
+release/
+
+# Tauri
+src-tauri/target/
+
+# React Native
+.expo/
+.expo-shared/
+
+# Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+Assets/AssetStoreTools*
+
+# Blender
+*.blend1
+*.blend2
+
+# Photoshop
+*.psd
+
+# After Effects
+*.aep
+
+# Premiere Pro
+*.prproj
+
+# Final Cut Pro
+*.fcpxmld
+
+# DaVinci Resolve
+*.drp
+
+# 3D Models
+*.fbx
+*.obj
+*.3ds
+*.max
+*.blend
+
+# Audio files
+*.wav
+*.mp3
+*.aac
+*.flac
+*.ogg
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Large image files
+*.raw
+*.tiff
+*.bmp
+
+# Font files
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Archive formats
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Virtual machine files
+*.vmdk
+*.vmx
+*.vmxf
+*.vmsd
+*.vmsn
+*.vmss
+*.nvram
+
+# Game development
+*.unity
+*.unitypackage
+
+# Mobile development
+*.ipa
+*.apk
+*.aab
+
+# Desktop applications
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.snap
+*.appimage
+
+# Compiled binaries
+*.o
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C/C++
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Rust
+target/
+Cargo.lock
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+vendor/
+
+# PHP
+vendor/
+composer.lock
+
+# Ruby
+*.gem
+.bundle/
+vendor/bundle/
+
+# Perl
+blib/
+.build/
+_build/
+cover_db/
+inc/
+Build
+!Build/
+Build.bat
+.last_cover_stats
+Makefile.old
+nytprof.out
+pm_to_blib
+
+# Haskell
+dist/
+dist-newstyle/
+.ghc.environment.*
+
+# Scala
+*.class
+*.log
+target/
+project/target/
+
+# Clojure
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/lib/
+/classes/
+/target/
+/checkouts/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.lein-failures
+.nrepl-port
+.cpcache/
+
+# Erlang/Elixir
+_build/
+deps/
+*.beam
+*.plt
+erl_crash.dump
+
+# Swift
+.build/
+Packages/
+*.xcodeproj
+*.xcworkspace
+
+# Kotlin
+*.kt.class
+
+# Dart
+.dart_tool/
+.packages
+pubspec.lock
+
+# R
+.Rhistory
+.RData
+.Ruserdata
+
+# MATLAB
+*.asv
+*.mex*
+
+# Mathematica
+*.nb
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+
+# Brackets
+.brackets.json
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.classpath
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+
+# Android Studio
+.gradle/
+local.properties
+*.iml
+.idea/workspace.xml
+.idea/libraries/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# SBT
+.sbt/
+target/
+project/target/
+project/project/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Autotools
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.guess
+config.sub
+configure
+depcomp
+install-sh
+ltmain.sh
+missing
+
+# Backup and temporary files
+*~
+*.bak
+*.backup
+*.swp
+*.tmp
+*.temp
+*.old
+*.orig
+*.rej
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Network files
+.AppleDouble
+.LSOverride
+
+# Icon files
+Icon?
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# FreeBSD
+.snap/
+
+# Solaris
+.smb*
+
+# AIX
+.smit*
+
+# Custom project-specific ignores
+# Add any project-specific files or directories here
+# that should not be tracked in version control
+
+# Example:
+# my-secret-config.json
+# private-notes/
+# local-development-only/
