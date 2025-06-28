@@ -66,26 +66,55 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
   const pageHeight = doc.internal.pageSize.getHeight();
   let yPosition = 20;
   
-  // Enhanced Colors
-  const primaryColor = [37, 99, 235]; // Blue-600
-  const secondaryColor = [75, 85, 99]; // Gray-600
-  const accentColor = [147, 51, 234]; // Purple-600
-  const successColor = [34, 197, 94]; // Green-500
-  const warningColor = [245, 158, 11]; // Amber-500
-  const lightGray = [248, 250, 252]; // Gray-50
-  const darkGray = [31, 41, 55]; // Gray-800
+  // Modern Color Palette
+  const colors = {
+    primary: [37, 99, 235],      // Blue-600
+    secondary: [99, 102, 241],   // Indigo-500
+    accent: [147, 51, 234],      // Purple-600
+    success: [34, 197, 94],      // Green-500
+    warning: [245, 158, 11],     // Amber-500
+    error: [239, 68, 68],        // Red-500
+    gray: {
+      50: [249, 250, 251],
+      100: [243, 244, 246],
+      200: [229, 231, 235],
+      300: [209, 213, 219],
+      400: [156, 163, 175],
+      500: [107, 114, 128],
+      600: [75, 85, 99],
+      700: [55, 65, 81],
+      800: [31, 41, 55],
+      900: [17, 24, 39]
+    }
+  };
   
   // Helper functions
-  const addText = (text: string, x: number, y: number, options: any = {}) => {
-    const { fontSize = 10, color = [0, 0, 0], fontStyle = 'normal', align = 'left', maxWidth } = options;
-    doc.setFontSize(fontSize);
+  const setColor = (color: number[]) => {
     doc.setTextColor(color[0], color[1], color[2]);
+  };
+  
+  const setFillColor = (color: number[]) => {
+    doc.setFillColor(color[0], color[1], color[2]);
+  };
+  
+  const addText = (text: string, x: number, y: number, options: any = {}) => {
+    const { 
+      fontSize = 10, 
+      color = colors.gray[900], 
+      fontStyle = 'normal', 
+      align = 'left', 
+      maxWidth,
+      lineHeight = 1.4
+    } = options;
+    
+    doc.setFontSize(fontSize);
+    setColor(color);
     doc.setFont('helvetica', fontStyle);
     
     if (maxWidth) {
       const lines = doc.splitTextToSize(text, maxWidth);
       lines.forEach((line: string, index: number) => {
-        const lineY = y + (index * fontSize * 0.4);
+        const lineY = y + (index * fontSize * lineHeight * 0.35);
         if (align === 'center') {
           doc.text(line, x, lineY, { align: 'center' });
         } else if (align === 'right') {
@@ -94,7 +123,7 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
           doc.text(line, x, lineY);
         }
       });
-      return y + (lines.length * fontSize * 0.4);
+      return y + (lines.length * fontSize * lineHeight * 0.35);
     } else {
       if (align === 'center') {
         doc.text(text, x, y, { align: 'center' });
@@ -103,499 +132,622 @@ export const generateCV = (data: CVData, language: 'en' | 'id' = 'en'): jsPDF =>
       } else {
         doc.text(text, x, y);
       }
-      return y + (fontSize * 0.4);
+      return y + (fontSize * lineHeight * 0.35);
     }
   };
   
   const addSection = (title: string, y: number, icon?: string) => {
-    // Section background
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.rect(15, y - 5, pageWidth - 30, 12, 'F');
+    // Section background with gradient effect
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(15, y - 8, pageWidth - 30, 16, 2, 2, 'F');
     
-    // Section border
-    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.setLineWidth(1);
-    doc.line(15, y - 5, pageWidth - 15, y - 5);
-    doc.line(15, y + 7, pageWidth - 15, y + 7);
+    // Section accent line
+    setFillColor(colors.primary);
+    doc.rect(15, y - 8, 4, 16, 'F');
     
     // Icon (if provided)
     if (icon) {
-      addText(icon, 20, y + 3, {
-        fontSize: 12,
-        color: primaryColor
+      addText(icon, 25, y, {
+        fontSize: 14,
+        color: colors.primary,
+        fontStyle: 'bold'
       });
     }
     
     // Section title
-    return addText(title, icon ? 30 : 20, y + 3, {
-      fontSize: 13,
-      color: primaryColor,
+    return addText(title, icon ? 35 : 25, y, {
+      fontSize: 14,
+      color: colors.primary,
       fontStyle: 'bold'
     });
   };
   
   const addBulletPoint = (text: string, x: number, y: number, options: any = {}) => {
-    // Bullet
-    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.circle(x, y - 1, 1, 'F');
+    // Modern bullet
+    setFillColor(colors.primary);
+    doc.circle(x + 2, y - 1.5, 1.5, 'F');
     
     // Text
-    return addText(text, x + 5, y, { ...options, maxWidth: pageWidth - x - 25 });
+    return addText(text, x + 8, y, { 
+      ...options, 
+      maxWidth: pageWidth - x - 25,
+      lineHeight: 1.3
+    });
   };
   
-  const addSkillBadge = (skill: string, x: number, y: number, color = primaryColor) => {
-    const textWidth = doc.getTextWidth(skill) + 6;
+  const addSkillBadge = (skill: string, x: number, y: number, color = colors.primary) => {
+    const textWidth = doc.getTextWidth(skill) + 8;
     
-    // Badge background
-    doc.setFillColor(color[0], color[1], color[2]);
-    doc.roundedRect(x, y - 4, textWidth, 8, 2, 2, 'F');
+    // Badge background with rounded corners
+    setFillColor(color);
+    doc.roundedRect(x, y - 5, textWidth, 10, 3, 3, 'F');
     
     // Badge text
-    addText(skill, x + 3, y + 1, {
+    addText(skill, x + 4, y + 1, {
       fontSize: 8,
       color: [255, 255, 255],
       fontStyle: 'bold'
     });
     
-    return x + textWidth + 5;
+    return x + textWidth + 6;
+  };
+  
+  const addProgressBar = (label: string, percentage: number, x: number, y: number, width: number = 60) => {
+    // Label
+    addText(label, x, y, {
+      fontSize: 9,
+      color: colors.gray[700],
+      fontStyle: 'bold'
+    });
+    
+    // Background bar
+    setFillColor(colors.gray[200]);
+    doc.roundedRect(x, y + 3, width, 4, 2, 2, 'F');
+    
+    // Progress bar
+    setFillColor(colors.primary);
+    doc.roundedRect(x, y + 3, (width * percentage / 100), 4, 2, 2, 'F');
+    
+    // Percentage text
+    addText(`${percentage}%`, x + width + 5, y + 5, {
+      fontSize: 8,
+      color: colors.gray[600]
+    });
+    
+    return y + 12;
   };
   
   const checkPageBreak = (requiredSpace: number) => {
-    if (yPosition + requiredSpace > pageHeight - 25) {
+    if (yPosition + requiredSpace > pageHeight - 30) {
       doc.addPage();
-      yPosition = 20;
+      yPosition = 25;
       return true;
     }
     return false;
   };
   
-  // Enhanced Header Section with Gradient Effect
-  const headerHeight = 70;
+  // HEADER SECTION - Modern Design
+  const headerHeight = 80;
   
-  // Gradient background simulation
+  // Header background with gradient simulation
   for (let i = 0; i < headerHeight; i++) {
     const ratio = i / headerHeight;
-    const r = Math.round(primaryColor[0] + (accentColor[0] - primaryColor[0]) * ratio);
-    const g = Math.round(primaryColor[1] + (accentColor[1] - primaryColor[1]) * ratio);
-    const b = Math.round(primaryColor[2] + (accentColor[2] - primaryColor[2]) * ratio);
+    const r = Math.round(colors.primary[0] + (colors.secondary[0] - colors.primary[0]) * ratio);
+    const g = Math.round(colors.primary[1] + (colors.secondary[1] - colors.primary[1]) * ratio);
+    const b = Math.round(colors.primary[2] + (colors.secondary[2] - colors.primary[2]) * ratio);
     
     doc.setFillColor(r, g, b);
     doc.rect(0, i, pageWidth, 1, 'F');
   }
   
-  // Decorative elements
-  doc.setFillColor(255, 255, 255, 0.1);
-  doc.circle(pageWidth - 30, 20, 15, 'F');
-  doc.circle(30, headerHeight - 20, 10, 'F');
+  // Decorative geometric elements
+  setFillColor([255, 255, 255, 0.1]);
+  doc.circle(pageWidth - 25, 15, 12, 'F');
+  doc.circle(25, headerHeight - 15, 8, 'F');
   
-  // Name with shadow effect
-  addText(data.personalInfo.name, pageWidth / 2 + 1, 26, {
-    fontSize: 26,
-    color: [0, 0, 0, 0.3],
+  // Profile photo placeholder (modern circle)
+  setFillColor([255, 255, 255]);
+  doc.circle(35, 35, 18, 'F');
+  setFillColor(colors.gray[300]);
+  doc.circle(35, 35, 16, 'F');
+  
+  // Add initials in profile circle
+  const initials = data.personalInfo.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+  addText(initials, 35, 38, {
+    fontSize: 16,
+    color: colors.primary,
     fontStyle: 'bold',
     align: 'center'
   });
   
-  addText(data.personalInfo.name, pageWidth / 2, 25, {
-    fontSize: 26,
+  // Name with modern typography
+  addText(data.personalInfo.name, 60, 25, {
+    fontSize: 24,
     color: [255, 255, 255],
-    fontStyle: 'bold',
-    align: 'center'
+    fontStyle: 'bold'
   });
   
   // Title with accent
-  addText(data.personalInfo.title, pageWidth / 2, 35, {
-    fontSize: 14,
-    color: [255, 255, 255],
-    align: 'center'
+  addText(data.personalInfo.title, 60, 35, {
+    fontSize: 12,
+    color: [255, 255, 255, 0.9]
   });
   
-  // Contact Info in styled boxes
+  // Contact info in modern layout
   const contactY = 50;
-  const contactInfo = [
-    { icon: '📧', text: data.personalInfo.email },
-    { icon: '📱', text: data.personalInfo.phone },
-    { icon: '📍', text: data.personalInfo.location },
-    { icon: '🌐', text: data.personalInfo.website }
+  const contactItems = [
+    { icon: '📧', text: data.personalInfo.email, type: 'email' },
+    { icon: '📱', text: data.personalInfo.phone, type: 'phone' },
+    { icon: '📍', text: data.personalInfo.location, type: 'location' },
+    { icon: '🌐', text: data.personalInfo.website, type: 'website' }
   ];
   
-  const contactWidth = (pageWidth - 40) / contactInfo.length;
-  contactInfo.forEach((info, index) => {
-    const x = 20 + (index * contactWidth);
+  contactItems.forEach((item, index) => {
+    const x = 60 + (index * 35);
     
-    // Contact box
-    doc.setFillColor(255, 255, 255, 0.2);
-    doc.roundedRect(x, contactY - 5, contactWidth - 5, 12, 2, 2, 'F');
+    // Contact item background
+    setFillColor([255, 255, 255, 0.15]);
+    doc.roundedRect(x, contactY - 3, 32, 12, 2, 2, 'F');
     
-    addText(info.icon, x + 3, contactY + 2, {
+    addText(item.icon, x + 2, contactY + 3, {
       fontSize: 8,
       color: [255, 255, 255]
     });
     
-    addText(info.text, x + 12, contactY + 2, {
-      fontSize: 7,
+    addText(item.text, x + 8, contactY + 3, {
+      fontSize: 6,
       color: [255, 255, 255],
-      maxWidth: contactWidth - 15
+      maxWidth: 22
     });
   });
   
-  yPosition = headerHeight + 15;
+  yPosition = headerHeight + 20;
   
-  // Professional Summary with enhanced styling
+  // PROFESSIONAL SUMMARY
   yPosition = addSection(language === 'id' ? 'RINGKASAN PROFESIONAL' : 'PROFESSIONAL SUMMARY', yPosition, '👨‍💻');
-  yPosition += 8;
+  yPosition += 5;
   
-  // Summary box
-  doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-  doc.roundedRect(20, yPosition - 3, pageWidth - 40, 25, 3, 3, 'F');
+  // Summary in modern card
+  setFillColor(colors.gray[50]);
+  doc.roundedRect(20, yPosition - 3, pageWidth - 40, 30, 4, 4, 'F');
   
-  yPosition = addText(data.summary, 25, yPosition + 3, { 
+  // Add subtle border
+  doc.setDrawColor(colors.gray[200][0], colors.gray[200][1], colors.gray[200][2]);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(20, yPosition - 3, pageWidth - 40, 30, 4, 4, 'S');
+  
+  yPosition = addText(data.summary, 25, yPosition + 5, { 
     fontSize: 10, 
     maxWidth: pageWidth - 50,
-    color: darkGray
+    color: colors.gray[700],
+    lineHeight: 1.5
   });
   
-  yPosition += 15;
+  yPosition += 20;
   
-  // GitHub Stats Section
-  checkPageBreak(35);
+  // GITHUB STATISTICS - Enhanced Design
+  checkPageBreak(40);
   yPosition = addSection(language === 'id' ? 'STATISTIK GITHUB' : 'GITHUB STATISTICS', yPosition, '📊');
   yPosition += 8;
   
-  const statsBoxWidth = (pageWidth - 50) / 4;
+  const statsBoxWidth = (pageWidth - 60) / 4;
   const statsData = [
-    { label: language === 'id' ? 'Repositori' : 'Repositories', value: data.githubStats.totalRepos, color: primaryColor },
-    { label: language === 'id' ? 'Bintang' : 'Stars', value: data.githubStats.totalStars, color: warningColor },
-    { label: 'Forks', value: data.githubStats.totalForks, color: successColor },
-    { label: language === 'id' ? 'Bahasa' : 'Languages', value: data.githubStats.languagesCount, color: accentColor }
+    { 
+      label: language === 'id' ? 'Repositori' : 'Repositories', 
+      value: data.githubStats.totalRepos, 
+      color: colors.primary,
+      icon: '📁'
+    },
+    { 
+      label: language === 'id' ? 'Bintang' : 'Stars', 
+      value: data.githubStats.totalStars, 
+      color: colors.warning,
+      icon: '⭐'
+    },
+    { 
+      label: 'Forks', 
+      value: data.githubStats.totalForks, 
+      color: colors.success,
+      icon: '🔀'
+    },
+    { 
+      label: language === 'id' ? 'Bahasa' : 'Languages', 
+      value: data.githubStats.languagesCount, 
+      color: colors.accent,
+      icon: '💻'
+    }
   ];
   
   statsData.forEach((stat, index) => {
-    const x = 20 + (index * statsBoxWidth);
+    const x = 25 + (index * statsBoxWidth);
     
-    // Stat box
-    doc.setFillColor(stat.color[0], stat.color[1], stat.color[2]);
-    doc.roundedRect(x, yPosition, statsBoxWidth - 5, 20, 3, 3, 'F');
+    // Stat card with shadow effect
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(x, yPosition, statsBoxWidth - 8, 25, 4, 4, 'F');
+    
+    // Colored top border
+    setFillColor(stat.color);
+    doc.roundedRect(x, yPosition, statsBoxWidth - 8, 3, 4, 4, 'F');
+    
+    // Icon
+    addText(stat.icon, x + 5, yPosition + 12, {
+      fontSize: 12
+    });
     
     // Value
-    addText(stat.value.toString(), x + (statsBoxWidth / 2) - 2.5, yPosition + 8, {
+    addText(stat.value.toString(), x + 15, yPosition + 12, {
       fontSize: 16,
-      color: [255, 255, 255],
-      fontStyle: 'bold',
-      align: 'center'
+      color: stat.color,
+      fontStyle: 'bold'
     });
     
     // Label
-    addText(stat.label, x + (statsBoxWidth / 2) - 2.5, yPosition + 16, {
+    addText(stat.label, x + 5, yPosition + 20, {
       fontSize: 8,
-      color: [255, 255, 255],
-      align: 'center'
+      color: colors.gray[600]
     });
   });
   
-  yPosition += 30;
+  yPosition += 35;
   
-  // Experience with timeline
-  checkPageBreak(40);
+  // EXPERIENCE with Timeline Design
+  checkPageBreak(50);
   yPosition = addSection(language === 'id' ? 'PENGALAMAN KERJA' : 'WORK EXPERIENCE', yPosition, '💼');
-  yPosition += 8;
+  yPosition += 10;
   
   data.experience.forEach((exp, index) => {
-    checkPageBreak(35);
+    checkPageBreak(40);
     
-    // Timeline dot
-    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.circle(25, yPosition + 5, 3, 'F');
+    // Timeline design
+    setFillColor(colors.primary);
+    doc.circle(30, yPosition + 8, 4, 'F');
     
+    // Timeline line
     if (index < data.experience.length - 1) {
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setDrawColor(colors.gray[300][0], colors.gray[300][1], colors.gray[300][2]);
       doc.setLineWidth(2);
-      doc.line(25, yPosition + 8, 25, yPosition + 35);
+      doc.line(30, yPosition + 12, 30, yPosition + 45);
     }
     
-    // Experience box
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.roundedRect(35, yPosition, pageWidth - 55, 30, 3, 3, 'F');
+    // Experience card
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(40, yPosition, pageWidth - 60, 35, 4, 4, 'F');
     
     // Job title
-    yPosition = addText(exp.title, 40, yPosition + 8, {
+    yPosition = addText(exp.title, 45, yPosition + 10, {
       fontSize: 12,
       fontStyle: 'bold',
-      color: primaryColor
+      color: colors.primary
     });
     
     // Company and period
-    yPosition = addText(`${exp.company} | ${exp.period}`, 40, yPosition + 2, {
+    yPosition = addText(`${exp.company} | ${exp.period}`, 45, yPosition + 2, {
       fontSize: 10,
-      color: secondaryColor,
+      color: colors.gray[600],
       fontStyle: 'italic'
     });
     
     // Description
     exp.description.forEach((desc) => {
-      yPosition = addBulletPoint(desc, 45, yPosition + 4, { fontSize: 9, color: darkGray });
+      yPosition = addBulletPoint(desc, 50, yPosition + 5, { 
+        fontSize: 9, 
+        color: colors.gray[700] 
+      });
     });
     
-    yPosition += 10;
+    yPosition += 15;
   });
   
-  // Education
-  checkPageBreak(30);
+  // EDUCATION
+  checkPageBreak(35);
   yPosition = addSection(language === 'id' ? 'PENDIDIKAN' : 'EDUCATION', yPosition, '🎓');
-  yPosition += 8;
+  yPosition += 10;
   
   data.education.forEach((edu) => {
-    checkPageBreak(20);
+    checkPageBreak(25);
     
-    // Education box
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 18, 3, 3, 'F');
+    // Education card
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(20, yPosition, pageWidth - 40, 22, 4, 4, 'F');
     
-    yPosition = addText(edu.degree, 25, yPosition + 6, {
+    // Graduation cap icon
+    addText('🎓', 25, yPosition + 8, { fontSize: 12 });
+    
+    yPosition = addText(edu.degree, 35, yPosition + 8, {
       fontSize: 11,
       fontStyle: 'bold',
-      color: primaryColor
+      color: colors.primary
     });
     
-    yPosition = addText(`${edu.school} | ${edu.period}`, 25, yPosition + 2, {
+    yPosition = addText(`${edu.school} | ${edu.period}`, 35, yPosition + 2, {
       fontSize: 10,
-      color: secondaryColor
+      color: colors.gray[600]
     });
     
     if (edu.status) {
-      yPosition = addText(edu.status, 25, yPosition + 2, {
+      yPosition = addText(edu.status, 35, yPosition + 2, {
         fontSize: 9,
-        color: successColor,
+        color: colors.success,
         fontStyle: 'italic'
       });
     }
     
-    yPosition += 8;
+    yPosition += 12;
   });
   
-  // Skills with enhanced badges
-  checkPageBreak(50);
+  // TECHNICAL SKILLS - Enhanced with Progress Bars
+  checkPageBreak(60);
   yPosition = addSection(language === 'id' ? 'KEAHLIAN TEKNIS' : 'TECHNICAL SKILLS', yPosition, '⚡');
-  yPosition += 8;
+  yPosition += 10;
   
-  // Programming Languages
+  // Programming Languages with skill levels
   yPosition = addText(language === 'id' ? 'Bahasa Pemrograman:' : 'Programming Languages:', 20, yPosition, {
     fontSize: 11,
     fontStyle: 'bold',
-    color: primaryColor
+    color: colors.primary
   });
-  yPosition += 5;
+  yPosition += 8;
   
-  let currentX = 25;
-  data.skills.languages.forEach((lang) => {
-    if (currentX + doc.getTextWidth(lang) + 15 > pageWidth - 20) {
-      currentX = 25;
-      yPosition += 12;
-    }
-    currentX = addSkillBadge(lang, currentX, yPosition, primaryColor);
+  const programmingSkills = [
+    { name: 'JavaScript', level: 90 },
+    { name: 'TypeScript', level: 85 },
+    { name: 'Python', level: 75 },
+    { name: 'PHP', level: 70 }
+  ];
+  
+  programmingSkills.forEach((skill, index) => {
+    const x = 25 + (index % 2) * 90;
+    if (index % 2 === 0 && index > 0) yPosition += 15;
+    yPosition = addProgressBar(skill.name, skill.level, x, yPosition);
   });
   
-  yPosition += 15;
+  yPosition += 10;
   
-  // Frameworks
+  // Frameworks as badges
   yPosition = addText(language === 'id' ? 'Framework & Library:' : 'Frameworks & Libraries:', 20, yPosition, {
     fontSize: 11,
     fontStyle: 'bold',
-    color: accentColor
+    color: colors.accent
   });
-  yPosition += 5;
+  yPosition += 8;
   
-  currentX = 25;
+  let currentX = 25;
   data.skills.frameworks.forEach((framework) => {
     if (currentX + doc.getTextWidth(framework) + 15 > pageWidth - 20) {
       currentX = 25;
-      yPosition += 12;
+      yPosition += 15;
     }
-    currentX = addSkillBadge(framework, currentX, yPosition, accentColor);
+    currentX = addSkillBadge(framework, currentX, yPosition, colors.accent);
   });
   
-  yPosition += 15;
+  yPosition += 20;
   
   // Tools
   yPosition = addText('Tools & Technologies:', 20, yPosition, {
     fontSize: 11,
     fontStyle: 'bold',
-    color: successColor
+    color: colors.success
   });
-  yPosition += 5;
+  yPosition += 8;
   
   currentX = 25;
   data.skills.tools.forEach((tool) => {
     if (currentX + doc.getTextWidth(tool) + 15 > pageWidth - 20) {
       currentX = 25;
-      yPosition += 12;
+      yPosition += 15;
     }
-    currentX = addSkillBadge(tool, currentX, yPosition, successColor);
+    currentX = addSkillBadge(tool, currentX, yPosition, colors.success);
   });
   
-  yPosition += 20;
+  yPosition += 25;
   
-  // Featured Projects
-  checkPageBreak(40);
+  // FEATURED PROJECTS - Enhanced Cards
+  checkPageBreak(50);
   yPosition = addSection(language === 'id' ? 'PROYEK UNGGULAN' : 'FEATURED PROJECTS', yPosition, '🚀');
-  yPosition += 8;
+  yPosition += 10;
   
   data.projects.slice(0, 4).forEach((project, index) => {
-    checkPageBreak(30);
+    checkPageBreak(35);
     
-    // Project box with gradient
-    const projectColors = [primaryColor, accentColor, successColor, warningColor];
+    const projectColors = [colors.primary, colors.accent, colors.success, colors.warning];
     const projectColor = projectColors[index % projectColors.length];
     
-    doc.setFillColor(projectColor[0], projectColor[1], projectColor[2]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 5, 2, 2, 'F');
+    // Project card with modern design
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(20, yPosition, pageWidth - 40, 32, 4, 4, 'F');
     
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.roundedRect(20, yPosition + 5, pageWidth - 40, 25, 0, 0, 'F');
+    // Colored accent bar
+    setFillColor(projectColor);
+    doc.roundedRect(20, yPosition, 4, 32, 4, 4, 'F');
     
-    yPosition = addText(project.name, 25, yPosition + 12, {
+    // Project icon
+    addText('🚀', 30, yPosition + 10, { fontSize: 12 });
+    
+    yPosition = addText(project.name, 40, yPosition + 10, {
       fontSize: 12,
       fontStyle: 'bold',
       color: projectColor
     });
     
     if (project.url) {
-      yPosition = addText(`🔗 ${project.url}`, 25, yPosition + 2, {
+      yPosition = addText(`🔗 ${project.url}`, 40, yPosition + 2, {
         fontSize: 8,
-        color: secondaryColor
+        color: colors.gray[600]
       });
     }
     
-    yPosition = addText(project.description, 25, yPosition + 3, {
+    yPosition = addText(project.description, 40, yPosition + 3, {
       fontSize: 9,
-      maxWidth: pageWidth - 50,
-      color: darkGray
+      maxWidth: pageWidth - 65,
+      color: colors.gray[700]
     });
     
-    // Technologies as badges
-    yPosition += 3;
-    currentX = 25;
-    project.technologies.forEach((tech) => {
+    // Technologies as small badges
+    yPosition += 5;
+    currentX = 40;
+    project.technologies.slice(0, 4).forEach((tech) => {
       if (currentX + doc.getTextWidth(tech) + 10 > pageWidth - 25) {
-        currentX = 25;
-        yPosition += 10;
+        currentX = 40;
+        yPosition += 12;
       }
-      currentX = addSkillBadge(tech, currentX, yPosition, [156, 163, 175]);
+      currentX = addSkillBadge(tech, currentX, yPosition, colors.gray[400]);
     });
     
-    yPosition += 15;
+    yPosition += 18;
   });
   
-  // Achievements with medals
-  checkPageBreak(40);
+  // ACHIEVEMENTS with Medal Design
+  checkPageBreak(50);
   yPosition = addSection(language === 'id' ? 'PENCAPAIAN & PENGHARGAAN' : 'ACHIEVEMENTS & AWARDS', yPosition, '🏆');
-  yPosition += 8;
+  yPosition += 10;
   
-  data.achievements.slice(0, 5).forEach((achievement) => {
-    checkPageBreak(20);
+  data.achievements.slice(0, 5).forEach((achievement, index) => {
+    checkPageBreak(25);
     
-    // Medal icon based on position
+    // Medal based on position
     let medal = '🥉';
-    if (achievement.position.includes('1st') || achievement.position.includes('Juara 1')) medal = '🥇';
-    else if (achievement.position.includes('2nd') || achievement.position.includes('Juara 2')) medal = '🥈';
+    let medalColor = colors.warning;
+    if (achievement.position.includes('1st') || achievement.position.includes('Juara 1')) {
+      medal = '🥇';
+      medalColor = colors.warning;
+    } else if (achievement.position.includes('2nd') || achievement.position.includes('Juara 2')) {
+      medal = '🥈';
+      medalColor = colors.gray[400];
+    }
     
-    // Achievement box
-    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.roundedRect(20, yPosition, pageWidth - 40, 18, 3, 3, 'F');
+    // Achievement card
+    setFillColor(colors.gray[50]);
+    doc.roundedRect(20, yPosition, pageWidth - 40, 22, 4, 4, 'F');
     
-    addText(medal, 25, yPosition + 8, { fontSize: 12 });
+    // Medal icon
+    addText(medal, 25, yPosition + 10, { fontSize: 14 });
     
-    yPosition = addText(achievement.title, 35, yPosition + 6, {
+    yPosition = addText(achievement.title, 40, yPosition + 8, {
       fontSize: 10,
       fontStyle: 'bold',
-      color: primaryColor,
+      color: colors.primary,
       maxWidth: pageWidth - 70
     });
     
-    yPosition = addText(`${achievement.organization} | ${achievement.date}`, 35, yPosition + 2, {
+    yPosition = addText(`${achievement.organization} | ${achievement.date}`, 40, yPosition + 2, {
       fontSize: 9,
-      color: secondaryColor
+      color: colors.gray[600]
     });
     
-    yPosition = addText(achievement.position, 35, yPosition + 2, {
+    yPosition = addText(achievement.position, 40, yPosition + 2, {
       fontSize: 9,
-      color: warningColor,
+      color: medalColor,
       fontStyle: 'bold'
     });
     
-    yPosition += 8;
+    yPosition += 12;
   });
   
-  // Unique Things About Me
-  checkPageBreak(30);
-  yPosition = addSection(language === 'id' ? 'HAL UNIK TENTANG SAYA' : 'UNIQUE THINGS ABOUT ME', yPosition, '✨');
-  yPosition += 8;
-  
-  data.uniqueThings.forEach((thing) => {
-    checkPageBreak(10);
-    yPosition = addBulletPoint(thing, 25, yPosition + 5, { 
-      fontSize: 10, 
-      color: darkGray 
-    });
-  });
-  
-  yPosition += 10;
-  
-  // Certificates
+  // CERTIFICATES
   if (data.certificates.length > 0) {
-    checkPageBreak(30);
+    checkPageBreak(40);
     yPosition = addSection(language === 'id' ? 'SERTIFIKASI PROFESIONAL' : 'PROFESSIONAL CERTIFICATIONS', yPosition, '📜');
-    yPosition += 8;
+    yPosition += 10;
+    
+    // Certificates in grid layout
+    const certPerRow = 2;
+    const certWidth = (pageWidth - 60) / certPerRow;
     
     data.certificates.slice(0, 8).forEach((cert, index) => {
-      checkPageBreak(12);
+      const row = Math.floor(index / certPerRow);
+      const col = index % certPerRow;
+      const x = 25 + (col * certWidth);
+      const y = yPosition + (row * 20);
       
-      if (index % 2 === 0) {
-        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-        doc.rect(20, yPosition - 2, pageWidth - 40, 10, 'F');
-      }
+      checkPageBreak(25);
       
-      yPosition = addText(`📋 ${cert.name}`, 25, yPosition + 3, {
-        fontSize: 9,
-        fontStyle: 'bold',
-        color: primaryColor
-      });
+      // Certificate card
+      setFillColor(colors.gray[50]);
+      doc.roundedRect(x, y, certWidth - 5, 18, 3, 3, 'F');
       
-      yPosition = addText(`   ${cert.issuer} • ${cert.date}`, 25, yPosition + 2, {
+      // Certificate icon
+      addText('📋', x + 3, y + 8, { fontSize: 10 });
+      
+      addText(cert.name, x + 12, y + 6, {
         fontSize: 8,
-        color: secondaryColor
+        fontStyle: 'bold',
+        color: colors.primary,
+        maxWidth: certWidth - 20
       });
       
-      yPosition += 3;
+      addText(`${cert.issuer} • ${cert.date}`, x + 12, y + 12, {
+        fontSize: 7,
+        color: colors.gray[600],
+        maxWidth: certWidth - 20
+      });
     });
+    
+    yPosition += Math.ceil(data.certificates.slice(0, 8).length / certPerRow) * 20 + 10;
   }
   
-  // Enhanced Footer with QR code placeholder
-  const footerY = pageHeight - 20;
+  // UNIQUE THINGS
+  checkPageBreak(30);
+  yPosition = addSection(language === 'id' ? 'HAL UNIK TENTANG SAYA' : 'UNIQUE THINGS ABOUT ME', yPosition, '✨');
+  yPosition += 10;
+  
+  data.uniqueThings.forEach((thing, index) => {
+    checkPageBreak(12);
+    
+    // Unique thing with icon
+    const icons = ['🎯', '🎨', '☕', '📚', '🚀'];
+    const icon = icons[index % icons.length];
+    
+    addText(icon, 25, yPosition + 5, { fontSize: 10 });
+    yPosition = addBulletPoint(thing, 35, yPosition + 5, { 
+      fontSize: 10, 
+      color: colors.gray[700] 
+    });
+  });
+  
+  yPosition += 15;
+  
+  // ENHANCED FOOTER
+  const footerY = pageHeight - 25;
   
   // Footer background
-  doc.setFillColor(darkGray[0], darkGray[1], darkGray[2]);
-  doc.rect(0, footerY - 5, pageWidth, 25, 'F');
+  setFillColor(colors.gray[800]);
+  doc.rect(0, footerY - 8, pageWidth, 33, 'F');
   
-  // Footer content
-  doc.setFontSize(8);
-  doc.setTextColor(255, 255, 255);
-  doc.text(
-    language === 'id' 
-      ? `CV dibuat otomatis dari Portfolio Website KOU • ${new Date().toLocaleDateString('id-ID')} • https://kou.my.id`
-      : `CV generated automatically from KOU Portfolio Website • ${new Date().toLocaleDateString('en-US')} • https://kou.my.id`,
-    pageWidth / 2,
-    footerY + 5,
-    { align: 'center' }
-  );
+  // Footer content with modern layout
+  const footerText = language === 'id' 
+    ? `CV dibuat otomatis dari Portfolio Website KOU • ${new Date().toLocaleDateString('id-ID')} • https://kou.my.id`
+    : `CV generated automatically from KOU Portfolio Website • ${new Date().toLocaleDateString('en-US')} • https://kou.my.id`;
   
-  // Page numbers
+  addText(footerText, pageWidth / 2, footerY, {
+    fontSize: 8,
+    color: [255, 255, 255],
+    align: 'center'
+  });
+  
+  // QR Code placeholder
+  setFillColor([255, 255, 255]);
+  doc.roundedRect(pageWidth - 25, footerY - 5, 15, 15, 2, 2, 'F');
+  addText('QR', pageWidth - 17.5, footerY + 2, {
+    fontSize: 8,
+    color: colors.gray[800],
+    align: 'center'
+  });
+  
+  // Page numbers with modern styling
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-    doc.text(`${i} / ${pageCount}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+    
+    // Page number background
+    setFillColor(colors.primary);
+    doc.circle(pageWidth - 15, pageHeight - 15, 8, 'F');
+    
+    addText(`${i}`, pageWidth - 15, pageHeight - 12, {
+      fontSize: 10,
+      color: [255, 255, 255],
+      fontStyle: 'bold',
+      align: 'center'
+    });
   }
   
   return doc;
