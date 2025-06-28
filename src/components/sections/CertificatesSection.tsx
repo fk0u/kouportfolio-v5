@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Eye, X, ChevronLeft, ChevronRight, Download, FileText, Search, Loader, Info, AlertCircle } from 'lucide-react';
+import { Award, Eye, X, ChevronLeft, ChevronRight, Download, FileText, Search, Loader, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
@@ -10,7 +10,6 @@ interface CertificateFile {
   name: string;
   fileName: string;
   pdfUrl: string;
-  previewUrl?: string;
   metadata?: {
     issuer?: string;
     date?: string;
@@ -28,7 +27,6 @@ const CertificatesSection: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showDetails, setShowDetails] = useState(false);
   const [pdfError, setPdfError] = useState(false);
   const certificatesPerPage = 12;
 
@@ -65,31 +63,22 @@ const CertificatesSection: React.FC = () => {
   const loadCertificates = async () => {
     setLoading(true);
     try {
-      const certificateData: CertificateFile[] = [];
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      for (const fileName of certificateFiles) {
-        try {
-          // Check if file exists
-          const response = await fetch(`/certificates/${fileName}`, { method: 'HEAD' });
-          
-          if (response.ok) {
-            const id = fileName.replace('.pdf', '');
-            const name = formatCertificateName(fileName);
-            const metadata = extractMetadataFromFilename(fileName);
-            
-            certificateData.push({
-              id,
-              name,
-              fileName,
-              pdfUrl: `/certificates/${fileName}`,
-              previewUrl: generatePreviewPlaceholder(name),
-              metadata
-            });
-          }
-        } catch (error) {
-          console.warn(`Certificate file ${fileName} not accessible:`, error);
-        }
-      }
+      const certificateData: CertificateFile[] = certificateFiles.map((fileName, index) => {
+        const id = fileName.replace('.pdf', '');
+        const name = formatCertificateName(fileName);
+        const metadata = extractMetadataFromFilename(fileName);
+        
+        return {
+          id,
+          name,
+          fileName,
+          pdfUrl: `/certificates/${fileName}`,
+          metadata
+        };
+      });
       
       setCertificates(certificateData);
     } catch (error) {
@@ -105,7 +94,8 @@ const CertificatesSection: React.FC = () => {
     
     // Handle different naming patterns
     if (name.includes('certificate-DQLAB')) {
-      return 'DQLab Certificate - ' + name.split('DQLAB')[1];
+      const code = name.split('DQLAB')[1];
+      return `DQLab Certificate - ${code}`;
     } else if (name.includes('sertifikat_course_')) {
       const courseId = name.match(/course_(\d+)/)?.[1];
       return `Course Certificate ${courseId}`;
@@ -132,81 +122,40 @@ const CertificatesSection: React.FC = () => {
     
     if (fileName.includes('DQLAB')) {
       metadata.issuer = 'DQLab';
+      metadata.date = '2024';
     } else if (fileName.includes('UC-')) {
       metadata.issuer = 'Udemy';
+      metadata.date = '2024';
     } else if (fileName.includes('Mindluster')) {
       metadata.issuer = 'Mindluster';
+      metadata.date = '2024';
     } else if (fileName.includes('Skilvul')) {
       metadata.issuer = 'Skilvul';
+      metadata.date = '2024';
     } else if (fileName.includes('sertifikat_course_')) {
       metadata.issuer = 'Online Course Platform';
-    }
-    
-    // Extract dates from filename if present
-    const dateMatch = fileName.match(/(\d{6}|\d{8}|\d{10}|\d{13})/);
-    if (dateMatch) {
-      const dateStr = dateMatch[1];
-      if (dateStr.length >= 6) {
-        try {
-          let year, month, day;
-          if (dateStr.length === 6) {
-            // DDMMYY format
-            day = dateStr.substring(0, 2);
-            month = dateStr.substring(2, 4);
-            year = '20' + dateStr.substring(4, 6);
-          } else if (dateStr.length === 8) {
-            // DDMMYYYY format
-            day = dateStr.substring(0, 2);
-            month = dateStr.substring(2, 4);
-            year = dateStr.substring(4, 8);
-          }
-          
-          if (year && month && day) {
-            metadata.date = `${day}/${month}/${year}`;
-          }
-        } catch (error) {
-          // Ignore date parsing errors
-        }
+      
+      // Extract date from filename
+      const dateMatch = fileName.match(/(\d{6})/);
+      if (dateMatch) {
+        const dateStr = dateMatch[1];
+        const day = dateStr.substring(0, 2);
+        const month = dateStr.substring(2, 4);
+        const year = '20' + dateStr.substring(4, 6);
+        metadata.date = `${day}/${month}/${year}`;
       }
+    } else if (fileName.includes('coursecertificate')) {
+      metadata.issuer = 'Course Platform';
+      metadata.date = '2024';
     }
     
     return metadata;
   };
 
-  const generatePreviewPlaceholder = (name: string): string => {
-    // Generate a simple SVG placeholder
-    const colors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
-    const color = colors[name.length % colors.length];
-    
-    const svg = `
-      <svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${color}80;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grad)"/>
-        <rect x="20" y="20" width="260" height="360" fill="white" rx="10"/>
-        <rect x="40" y="40" width="220" height="40" fill="${color}" rx="5"/>
-        <rect x="40" y="100" width="180" height="20" fill="#E5E7EB" rx="3"/>
-        <rect x="40" y="130" width="200" height="20" fill="#E5E7EB" rx="3"/>
-        <rect x="40" y="160" width="160" height="20" fill="#E5E7EB" rx="3"/>
-        <circle cx="150" cy="250" r="30" fill="${color}"/>
-        <rect x="40" y="300" width="220" height="15" fill="#E5E7EB" rx="3"/>
-        <rect x="40" y="325" width="180" height="15" fill="#E5E7EB" rx="3"/>
-        <rect x="40" y="350" width="200" height="15" fill="#E5E7EB" rx="3"/>
-      </svg>
-    `;
-    
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
-  };
-
   // Filter certificates based on search
   const filteredCertificates = certificates.filter(cert =>
     cert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cert.metadata?.issuer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cert.metadata?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    cert.metadata?.issuer?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Pagination logic
@@ -217,13 +166,11 @@ const CertificatesSection: React.FC = () => {
 
   const openCertificate = (certificate: CertificateFile) => {
     setSelectedCertificate(certificate);
-    setShowDetails(false);
     setPdfError(false);
   };
 
   const closeCertificate = () => {
     setSelectedCertificate(null);
-    setShowDetails(false);
     setPdfError(false);
   };
 
@@ -257,6 +204,36 @@ const CertificatesSection: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+  // Create certificate preview placeholder
+  const createCertificatePreview = (name: string, issuer?: string) => {
+    const colors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
+    const color = colors[name.length % colors.length];
+    
+    return (
+      <div 
+        className="w-full h-full flex flex-col items-center justify-center p-4"
+        style={{ background: `linear-gradient(135deg, ${color}20, ${color}10)` }}
+      >
+        <div 
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+          style={{ backgroundColor: color }}
+        >
+          <Award className="w-8 h-8 text-white" />
+        </div>
+        <div className="text-center">
+          <h3 className={`text-sm font-bold mb-2 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            {name}
+          </h3>
+          {issuer && (
+            <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              {issuer}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section className="min-h-screen py-20">
@@ -349,30 +326,8 @@ const CertificatesSection: React.FC = () => {
                 >
                   <div className="relative overflow-hidden rounded-2xl">
                     {/* Certificate Preview */}
-                    <div className="aspect-[3/4] overflow-hidden rounded-t-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
-                      <img
-                        src={certificate.previewUrl}
-                        alt={certificate.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        onError={(e) => {
-                          // Fallback to icon if image fails
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `
-                              <div class="w-full h-full flex items-center justify-center">
-                                <div class="text-center">
-                                  <svg class="w-16 h-16 mx-auto mb-4 ${isDark ? 'text-blue-300' : 'text-blue-600'}" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                                  </svg>
-                                  <p class="text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}">${certificate.name}</p>
-                                </div>
-                              </div>
-                            `;
-                          }
-                        }}
-                      />
+                    <div className="aspect-[3/4] overflow-hidden rounded-t-2xl">
+                      {createCertificatePreview(certificate.name, certificate.metadata?.issuer)}
                       
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
