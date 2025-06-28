@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Eye, X, ChevronLeft, ChevronRight, Download, FileText, Search, Loader, Info, AlertCircle } from 'lucide-react';
+import { Award, Eye, X, ChevronLeft, ChevronRight, Download, FileText, Search, Loader, Info, AlertCircle, Calendar, Building, User } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 import GlassCard from '../GlassCard';
+import { PDFProcessor } from '../../lib/pdfProcessor';
 
 interface CertificateFile {
   id: string;
@@ -16,7 +17,10 @@ interface CertificateFile {
     date?: string;
     title?: string;
     recipient?: string;
+    courseId?: string;
   };
+  isProcessing?: boolean;
+  processingError?: boolean;
 }
 
 const CertificatesSection: React.FC = () => {
@@ -32,60 +36,6 @@ const CertificatesSection: React.FC = () => {
   const [pdfError, setPdfError] = useState(false);
   const certificatesPerPage = 6;
 
-  // Generate certificate data for certificate-alghani-(1) through (22)
-  const generateCertificateData = (): CertificateFile[] => {
-    const certificates: CertificateFile[] = [];
-    
-    // Certificate titles and issuers (you can customize these)
-    const certificateInfo = [
-      { title: 'Web Development Fundamentals', issuer: 'Coursera', date: 'March 2024' },
-      { title: 'JavaScript ES6+ Certification', issuer: 'freeCodeCamp', date: 'February 2024' },
-      { title: 'React Developer Certificate', issuer: 'Meta', date: 'January 2024' },
-      { title: 'UI/UX Design Principles', issuer: 'Google', date: 'December 2023' },
-      { title: 'Digital Photography Basics', issuer: 'Adobe', date: 'November 2023' },
-      { title: 'Video Editing Mastery', issuer: 'Udemy', date: 'October 2023' },
-      { title: 'Python Programming', issuer: 'Python Institute', date: 'September 2023' },
-      { title: 'Database Management', issuer: 'Oracle', date: 'August 2023' },
-      { title: 'Node.js Backend Development', issuer: 'MongoDB University', date: 'July 2023' },
-      { title: 'Responsive Web Design', issuer: 'freeCodeCamp', date: 'June 2023' },
-      { title: 'Git Version Control', issuer: 'GitHub', date: 'May 2023' },
-      { title: 'Agile Project Management', issuer: 'Scrum Alliance', date: 'April 2023' },
-      { title: 'TypeScript Advanced Concepts', issuer: 'Microsoft', date: 'March 2023' },
-      { title: 'CSS Grid and Flexbox', issuer: 'CSS-Tricks', date: 'February 2023' },
-      { title: 'API Development with REST', issuer: 'Postman', date: 'January 2023' },
-      { title: 'Mobile App Development', issuer: 'React Native', date: 'December 2022' },
-      { title: 'Cloud Computing Basics', issuer: 'AWS', date: 'November 2022' },
-      { title: 'Cybersecurity Fundamentals', issuer: 'CompTIA', date: 'October 2022' },
-      { title: 'Machine Learning Introduction', issuer: 'Stanford Online', date: 'September 2022' },
-      { title: 'Data Visualization', issuer: 'Tableau', date: 'August 2022' },
-      { title: 'DevOps Essentials', issuer: 'Docker', date: 'July 2022' },
-      { title: 'Software Testing Automation', issuer: 'Selenium', date: 'June 2022' }
-    ];
-
-    for (let i = 1; i <= 22; i++) {
-      const info = certificateInfo[i - 1] || {
-        title: `Professional Certificate ${i}`,
-        issuer: 'Professional Institute',
-        date: '2023'
-      };
-
-      certificates.push({
-        id: `certificate-alghani-${i}`,
-        name: info.title,
-        fileName: `certificate-alghani-(${i}).pdf`,
-        pdfUrl: `/certificates/certificate-alghani-(${i}).pdf`,
-        metadata: {
-          issuer: info.issuer,
-          date: info.date,
-          title: info.title,
-          recipient: 'Al-Ghani Desta Setyawan'
-        }
-      });
-    }
-    
-    return certificates;
-  };
-
   useEffect(() => {
     loadCertificates();
   }, []);
@@ -93,18 +43,25 @@ const CertificatesSection: React.FC = () => {
   const loadCertificates = async () => {
     setLoading(true);
     try {
-      // Simulate loading delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Generate list of certificate files to check
+      const certificateFiles: CertificateFile[] = [];
       
-      // Generate certificate data
-      const certificateData = generateCertificateData();
+      for (let i = 1; i <= 22; i++) {
+        certificateFiles.push({
+          id: `certificate-alghani-${i}`,
+          name: `Certificate ${i}`,
+          fileName: `certificate-alghani-(${i}).pdf`,
+          pdfUrl: `/certificates/certificate-alghani-(${i}).pdf`,
+          isProcessing: true,
+        });
+      }
       
-      // Verify which files actually exist
+      // Check which files exist and process them
       const existingCertificates: CertificateFile[] = [];
       
-      for (const cert of certificateData) {
+      for (const cert of certificateFiles) {
         try {
-          // Check if file exists by trying to fetch it
+          // Check if file exists
           const response = await fetch(cert.pdfUrl, { method: 'HEAD' });
           if (response.ok) {
             existingCertificates.push(cert);
@@ -115,6 +72,43 @@ const CertificatesSection: React.FC = () => {
       }
       
       setCertificates(existingCertificates);
+      
+      // Process each certificate to extract metadata and generate thumbnails
+      for (let i = 0; i < existingCertificates.length; i++) {
+        const cert = existingCertificates[i];
+        
+        try {
+          const processed = await PDFProcessor.processCertificate(cert.pdfUrl);
+          
+          const updatedCert: CertificateFile = {
+            ...cert,
+            name: processed.extractedInfo.title || cert.name,
+            thumbnailUrl: processed.thumbnail,
+            metadata: {
+              title: processed.extractedInfo.title,
+              issuer: processed.extractedInfo.issuer,
+              recipient: processed.extractedInfo.recipient,
+              date: processed.extractedInfo.date,
+              courseId: processed.extractedInfo.courseId,
+            },
+            isProcessing: false,
+          };
+          
+          setCertificates(prev => 
+            prev.map(c => c.id === cert.id ? updatedCert : c)
+          );
+        } catch (error) {
+          console.error(`Error processing certificate ${cert.fileName}:`, error);
+          
+          setCertificates(prev => 
+            prev.map(c => c.id === cert.id ? {
+              ...c,
+              isProcessing: false,
+              processingError: true,
+            } : c)
+          );
+        }
+      }
     } catch (error) {
       console.error('Error loading certificates:', error);
     } finally {
@@ -126,7 +120,8 @@ const CertificatesSection: React.FC = () => {
   const filteredCertificates = certificates.filter(cert =>
     cert.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cert.metadata?.issuer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cert.metadata?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    cert.metadata?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cert.metadata?.recipient?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Pagination logic
@@ -248,7 +243,7 @@ const CertificatesSection: React.FC = () => {
             <div className="flex items-center gap-3">
               <Loader className={`w-6 h-6 animate-spin ${isDark ? 'text-white' : 'text-gray-900'}`} />
               <span className={`${isDark ? 'text-white' : 'text-gray-900'}`}>
-                {currentLanguage.code === 'id' ? 'Memuat sertifikat...' : 'Loading certificates...'}
+                {currentLanguage.code === 'id' ? 'Memuat dan memproses sertifikat...' : 'Loading and processing certificates...'}
               </span>
             </div>
           </div>
@@ -256,102 +251,238 @@ const CertificatesSection: React.FC = () => {
 
         {/* Certificates Grid */}
         {!loading && currentCertificates.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {currentCertificates.map((certificate, index) => (
-              <GlassCard
-                key={certificate.id}
-                className={`
-                  group cursor-pointer transition-all duration-500 delay-${index * 100}
-                  ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-                `}
-                hover={false}
-              >
-                <div className="relative overflow-hidden rounded-2xl">
-                  {/* Certificate Preview */}
-                  <div className="aspect-[4/3] overflow-hidden rounded-t-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center">
-                        <FileText className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-blue-300' : 'text-blue-600'}`} />
-                        <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {certificate.name}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openCertificate(certificate)}
-                          className="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-white/30 transition-colors duration-200"
-                        >
-                          <Eye className="w-4 h-4" />
-                          {currentLanguage.code === 'id' ? 'Preview' : 'Preview'}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadPDF(certificate.pdfUrl, certificate.name);
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {currentCertificates.map((certificate, index) => (
+                <GlassCard
+                  key={certificate.id}
+                  className={`
+                    group cursor-pointer transition-all duration-500 delay-${index * 100}
+                    ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+                  `}
+                  hover={false}
+                >
+                  <div className="relative overflow-hidden rounded-2xl">
+                    {/* Certificate Preview/Thumbnail */}
+                    <div className="aspect-[4/3] overflow-hidden rounded-t-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
+                      {certificate.isProcessing ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <Loader className={`w-8 h-8 mx-auto mb-2 animate-spin ${isDark ? 'text-blue-300' : 'text-blue-600'}`} />
+                            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {currentLanguage.code === 'id' ? 'Memproses...' : 'Processing...'}
+                            </p>
+                          </div>
+                        </div>
+                      ) : certificate.processingError ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <AlertCircle className={`w-8 h-8 mx-auto mb-2 text-red-500`} />
+                            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {currentLanguage.code === 'id' ? 'Gagal memproses' : 'Processing failed'}
+                            </p>
+                          </div>
+                        </div>
+                      ) : certificate.thumbnailUrl ? (
+                        <img
+                          src={certificate.thumbnailUrl}
+                          alt={certificate.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          onError={(e) => {
+                            // Fallback to default icon if thumbnail fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.parentElement!.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center">
+                                <div class="text-center">
+                                  <svg class="w-16 h-16 mx-auto mb-4 ${isDark ? 'text-blue-300' : 'text-blue-600'}" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                                  </svg>
+                                  <p class="text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}">${certificate.name}</p>
+                                </div>
+                              </div>
+                            `;
                           }}
-                          className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-blue-500/30 transition-colors duration-200"
-                        >
-                          <Download className="w-4 h-4" />
-                          PDF
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openCertificate(certificate);
-                            setTimeout(() => setShowDetails(true), 500);
-                          }}
-                          className="flex items-center gap-2 px-3 py-2 bg-purple-500/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-purple-500/30 transition-colors duration-200"
-                        >
-                          <Info className="w-4 h-4" />
-                          {currentLanguage.code === 'id' ? 'Detail' : 'Details'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Certificate Info */}
-                  <div className="p-6">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                        <Award className="w-5 h-5 text-white" />
-                      </div>
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <FileText className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-blue-300' : 'text-blue-600'}`} />
+                            <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                              {certificate.name}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       
-                      <div className="flex-1 min-w-0">
-                        <h3 className={`
-                          text-lg font-bold mb-2 line-clamp-2
-                          ${isDark ? 'text-white' : 'text-gray-900'}
-                        `}>
-                          {certificate.name}
-                        </h3>
+                      {/* Hover Overlay */}
+                      {!certificate.isProcessing && !certificate.processingError && (
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => openCertificate(certificate)}
+                              className="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-white/30 transition-colors duration-200"
+                            >
+                              <Eye className="w-4 h-4" />
+                              {currentLanguage.code === 'id' ? 'Preview' : 'Preview'}
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadPDF(certificate.pdfUrl, certificate.name);
+                              }}
+                              className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-blue-500/30 transition-colors duration-200"
+                            >
+                              <Download className="w-4 h-4" />
+                              PDF
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openCertificate(certificate);
+                                setTimeout(() => setShowDetails(true), 500);
+                              }}
+                              className="flex items-center gap-2 px-3 py-2 bg-purple-500/20 backdrop-blur-md rounded-lg text-white font-medium hover:bg-purple-500/30 transition-colors duration-200"
+                            >
+                              <Info className="w-4 h-4" />
+                              {currentLanguage.code === 'id' ? 'Detail' : 'Details'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Certificate Info */}
+                    <div className="p-6">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                          <Award className="w-5 h-5 text-white" />
+                        </div>
                         
-                        {certificate.metadata?.issuer && (
-                          <p className={`
-                            text-sm font-medium mb-1
-                            ${isDark ? 'text-blue-300' : 'text-blue-600'}
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`
+                            text-lg font-bold mb-2 line-clamp-2
+                            ${isDark ? 'text-white' : 'text-gray-900'}
                           `}>
-                            {certificate.metadata.issuer}
-                          </p>
-                        )}
-                        
-                        {certificate.metadata?.date && (
-                          <p className={`
-                            text-sm
-                            ${isDark ? 'text-gray-400' : 'text-gray-500'}
-                          `}>
-                            {certificate.metadata.date}
-                          </p>
-                        )}
+                            {certificate.name}
+                          </h3>
+                          
+                          {certificate.metadata?.issuer && (
+                            <div className="flex items-center gap-1 mb-1">
+                              <Building className="w-3 h-3 text-blue-500" />
+                              <p className={`
+                                text-sm font-medium
+                                ${isDark ? 'text-blue-300' : 'text-blue-600'}
+                              `}>
+                                {certificate.metadata.issuer}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {certificate.metadata?.date && (
+                            <div className="flex items-center gap-1 mb-1">
+                              <Calendar className="w-3 h-3 text-green-500" />
+                              <p className={`
+                                text-sm
+                                ${isDark ? 'text-gray-400' : 'text-gray-500'}
+                              `}>
+                                {certificate.metadata.date}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {certificate.metadata?.recipient && (
+                            <div className="flex items-center gap-1">
+                              <User className="w-3 h-3 text-purple-500" />
+                              <p className={`
+                                text-xs
+                                ${isDark ? 'text-gray-500' : 'text-gray-400'}
+                              `}>
+                                {certificate.metadata.recipient}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                </GlassCard>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className={`
+                flex justify-center items-center gap-4 mb-8 transition-all duration-1000 delay-500
+                ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+              `}>
+                <button
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${currentPage === 1
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isDark
+                        ? 'hover:bg-white/10 text-white'
+                        : 'hover:bg-black/5 text-gray-900'
+                    }
+                  `}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <div className="flex gap-2">
+                  {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 7) {
+                      page = i + 1;
+                    } else if (currentPage <= 4) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 3) {
+                      page = totalPages - 6 + i;
+                    } else {
+                      page = currentPage - 3 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`
+                          w-10 h-10 rounded-lg font-medium transition-all duration-200
+                          ${page === currentPage
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                            : isDark
+                              ? 'hover:bg-white/10 text-gray-300'
+                              : 'hover:bg-black/5 text-gray-600'
+                          }
+                        `}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
-              </GlassCard>
-            ))}
-          </div>
+
+                <button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${currentPage === totalPages
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isDark
+                        ? 'hover:bg-white/10 text-white'
+                        : 'hover:bg-black/5 text-gray-900'
+                    }
+                  `}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* No Results */}
@@ -392,79 +523,6 @@ const CertificatesSection: React.FC = () => {
                 }
               </p>
             </GlassCard>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className={`
-            flex justify-center items-center gap-4 mb-8 transition-all duration-1000 delay-500
-            ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-          `}>
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className={`
-                p-2 rounded-lg transition-all duration-200
-                ${currentPage === 1
-                  ? 'opacity-50 cursor-not-allowed'
-                  : isDark
-                    ? 'hover:bg-white/10 text-white'
-                    : 'hover:bg-black/5 text-gray-900'
-                }
-              `}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            <div className="flex gap-2">
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                let page;
-                if (totalPages <= 7) {
-                  page = i + 1;
-                } else if (currentPage <= 4) {
-                  page = i + 1;
-                } else if (currentPage >= totalPages - 3) {
-                  page = totalPages - 6 + i;
-                } else {
-                  page = currentPage - 3 + i;
-                }
-                
-                return (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`
-                      w-10 h-10 rounded-lg font-medium transition-all duration-200
-                      ${page === currentPage
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-                        : isDark
-                          ? 'hover:bg-white/10 text-gray-300'
-                          : 'hover:bg-black/5 text-gray-600'
-                      }
-                    `}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className={`
-                p-2 rounded-lg transition-all duration-200
-                ${currentPage === totalPages
-                  ? 'opacity-50 cursor-not-allowed'
-                  : isDark
-                    ? 'hover:bg-white/10 text-white'
-                    : 'hover:bg-black/5 text-gray-900'
-                }
-              `}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
         )}
 
@@ -638,6 +696,17 @@ const CertificatesSection: React.FC = () => {
                           </div>
                         )}
 
+                        {selectedCertificate.metadata.courseId && (
+                          <div>
+                            <label className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {currentLanguage.code === 'id' ? 'ID Kursus' : 'Course ID'}
+                            </label>
+                            <p className={`${isDark ? 'text-white' : 'text-gray-900'}`}>
+                              {selectedCertificate.metadata.courseId}
+                            </p>
+                          </div>
+                        )}
+
                         <div>
                           <label className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             {currentLanguage.code === 'id' ? 'Nama File' : 'File Name'}
@@ -695,13 +764,13 @@ const CertificatesSection: React.FC = () => {
                 <div className={`
                   text-3xl font-bold mb-2 text-green-500
                 `}>
-                  2024
+                  {certificates.filter(cert => cert.thumbnailUrl).length}
                 </div>
                 <div className={`
                   text-sm
                   ${isDark ? 'text-gray-400' : 'text-gray-600'}
                 `}>
-                  {currentLanguage.code === 'id' ? 'Tahun Terbaru' : 'Latest Year'}
+                  {currentLanguage.code === 'id' ? 'Dengan Preview' : 'With Preview'}
                 </div>
               </GlassCard>
               
@@ -709,13 +778,13 @@ const CertificatesSection: React.FC = () => {
                 <div className={`
                   text-3xl font-bold mb-2 text-purple-500
                 `}>
-                  {certificates.length}
+                  {certificates.filter(cert => !cert.isProcessing && !cert.processingError).length}
                 </div>
                 <div className={`
                   text-sm
                   ${isDark ? 'text-gray-400' : 'text-gray-600'}
                 `}>
-                  {currentLanguage.code === 'id' ? 'PDF Tersedia' : 'PDFs Available'}
+                  {currentLanguage.code === 'id' ? 'Siap Dilihat' : 'Ready to View'}
                 </div>
               </GlassCard>
             </div>
