@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Award, Download, Eye, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
-import { GlassCard } from '../GlassCard';
+import GlassCard from '../GlassCard';
 import { processPDFPreview, type CertificatePreview } from '../../lib/pdfProcessor';
 
 const CertificatesSection: React.FC = () => {
