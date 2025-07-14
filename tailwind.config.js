@@ -1,55 +1,35 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: ['class', '[data-theme="dark"]'],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-        ],
+        sans: ['Inter', 'sans-serif'],
+        heading: ['Satoshi', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+        codex: {
+          primary: 'rgb(13, 15, 23)',
+          surface: 'rgb(26, 28, 40)',
+          text: 'rgb(234, 239, 253)',
+          'text-secondary': 'rgb(156, 163, 175)',
+        },
+        anima: {
+          cyan: 'rgb(125, 249, 255)',
+          magenta: 'rgb(244, 114, 182)',
         },
       },
-      spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
+      backgroundImage: {
+        'anima-gradient': 'linear-gradient(135deg, rgb(125, 249, 255), rgb(244, 114, 182))',
       },
       animation: {
-        'bounce-slow': 'bounce 2s infinite',
-        'pulse-slow': 'pulse 3s infinite',
-        'fade-in': 'fade-in 0.6s ease-out',
-        'slide-up': 'slide-up 0.8s ease-out',
-        'float': 'float 3s ease-in-out infinite',
-      },
-      backdropBlur: {
-        xs: '2px',
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
-      boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        'anima-flow': 'anima-flow 3s ease-in-out infinite',
+        'typewriter': 'typewriter 2s steps(20) 1s forwards',
+        'blink': 'blink 1s infinite',
+        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
       },
     },
   },
