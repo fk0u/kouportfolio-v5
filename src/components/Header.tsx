@@ -32,8 +32,8 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="font-satoshi text-2xl font-bold hover-anima">
-            <span className="anima-gradient">Codex</span>
-            <span className="text-text-primary">Anima</span>
+            <span className="anima-gradient">KOU</span>
+            <span className="text-text-primary"></span>
           </a>
 
           {/* Desktop Navigation */}
