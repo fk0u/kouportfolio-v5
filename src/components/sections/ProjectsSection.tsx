@@ -23,7 +23,7 @@ const ProjectsSection: React.FC = () => {
 
   const featuredProjects = [
     {
-      title: 'Codex Anima Portfolio',
+      title: 'KOU Portfolio',
       description: 'A sophisticated Tech-Noir themed portfolio showcasing the harmony between logic and creativity.',
       tech: ['React', 'TypeScript', 'Tailwind CSS'],
       github: 'https://github.com/fk0u/portfolio',
