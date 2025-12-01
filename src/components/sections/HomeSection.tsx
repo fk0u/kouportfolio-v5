@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Github, Linkedin, Instagram, Mail, MapPin, TrendingUp, Star, GitFork, Calendar } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -6,14 +6,29 @@ import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 import GlassCard from '../GlassCard';
 import TypewriterText from '../TypewriterText';
 import CVDownloadButton from '../CVDownloadButton';
-import { useState, useEffect } from 'react';
 import { getGitHubStats } from '../../lib/github';
+
+interface GitHubStats {
+  user: {
+    avatar_url: string;
+    login: string;
+  };
+  totalStars: number;
+  totalForks: number;
+  totalRepos: number;
+  languagesCount: number;
+  topRepos: Array<{
+    name: string;
+    description: string;
+    updated_at: string;
+  }>;
+}
 
 const HomeSection: React.FC = () => {
   const { t, currentLanguage } = useLanguage();
   const { isDark } = useTheme();
   const { ref, isIntersecting } = useIntersectionObserver(0.2);
-  const [githubStats, setGithubStats] = useState<any>(null);
+  const [githubStats, setGithubStats] = useState<GitHubStats | null>(null);
 
   useEffect(() => {
     const fetchGitHubStats = async () => {
@@ -29,30 +44,30 @@ const HomeSection: React.FC = () => {
   }, []);
 
   const socialLinks = [
-    { 
-      name: 'GitHub', 
-      icon: Github, 
+    {
+      name: 'GitHub',
+      icon: Github,
       url: 'https://github.com/fk0u',
       handle: 'Fk0u',
       color: 'hover:text-gray-900'
     },
-    { 
-      name: 'LinkedIn', 
-      icon: Linkedin, 
+    {
+      name: 'LinkedIn',
+      icon: Linkedin,
       url: 'https://linkedin.com/in/alghani',
       handle: 'alghani',
       color: 'hover:text-blue-600'
     },
-    { 
-      name: 'Instagram', 
-      icon: Instagram, 
+    {
+      name: 'Instagram',
+      icon: Instagram,
       url: 'https://instagram.com/kou.sozo',
       handle: '@kou.sozo',
       color: 'hover:text-pink-600'
     },
-    { 
-      name: 'Email', 
-      icon: Mail, 
+    {
+      name: 'Email',
+      icon: Mail,
       url: 'mailto:official@kou.my.id',
       handle: 'official@kou.my.id',
       color: 'hover:text-red-600'
@@ -301,7 +316,7 @@ const HomeSection: React.FC = () => {
                           {currentLanguage.code === 'id' ? 'Update Terbaru' : 'Latest Update'}
                         </span>
                       </div>
-                      
+
                       <div>
                         <h4 className={`
                           font-bold text-sm line-clamp-1

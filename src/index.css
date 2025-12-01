@@ -2,15 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import fonts */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@700,800,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
-/* CSS Variables for Tech-Noir Theme */
 :root {
-  --bg-primary: rgb(13, 15, 23);
-  --bg-surface: rgb(26, 28, 40);
-  --text-primary: rgb(234, 239, 253);
+  --bg-primary: rgb(3, 7, 18);
+  --text-primary: rgb(243, 244, 246);
   --text-secondary: rgb(156, 163, 175);
   --anima-cyan: rgb(125, 249, 255);
   --anima-magenta: rgb(244, 114, 182);
@@ -37,7 +31,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Satoshi', sans-serif;
   font-weight: 700;
   line-height: 1.2;
@@ -70,9 +69,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Animations */
 @keyframes gradientShift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -82,16 +84,21 @@ h1, h2, h3, h4, h5, h6 {
   from {
     width: 0;
   }
+
   to {
     width: 100%;
   }
 }
 
 @keyframes blink {
-  0%, 50% {
+
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+
+  51%,
+  100% {
     opacity: 0;
   }
 }
@@ -101,6 +108,7 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -108,18 +116,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(125, 249, 255, 0.3);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(125, 249, 255, 0.6), 0 0 60px rgba(244, 114, 182, 0.3);
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -176,9 +190,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glass morphism for surfaces */
 .glass-surface {
-  background: rgba(26, 28, 40, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(125, 249, 255, 0.1);
+  background: rgba(26, 28, 40, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(125, 249, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Scrollbar styling */
@@ -237,6 +252,10 @@ a:focus-visible {
   z-index: 1000;
   transition: all 0.3s ease;
   animation: pulse-glow 2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg-primary);
 }
 
 .cta-button:hover {
@@ -245,9 +264,9 @@ a:focus-visible {
 
 /* Grid patterns for tech-noir feel */
 .grid-pattern {
-  background-image: 
-    linear-gradient(rgba(125, 249, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(125, 249, 255, 0.1) 1px, transparent 1px);
+  background-image:
+    linear-gradient(rgba(125, 249, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
@@ -263,6 +282,7 @@ a:focus-visible {
 
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

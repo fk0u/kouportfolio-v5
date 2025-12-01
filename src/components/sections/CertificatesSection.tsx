@@ -57,100 +57,100 @@ const CertificatesSection: React.FC = () => {
   ];
 
   useEffect(() => {
+    const formatCertificateName = (fileName: string): string => {
+      // Remove file extension
+      const name = fileName.replace('.pdf', '');
+
+      // Handle different naming patterns
+      if (name.includes('certificate-DQLAB')) {
+        const code = name.split('DQLAB')[1];
+        return `DQLab Certificate - ${code}`;
+      } else if (name.includes('sertifikat_course_')) {
+        const courseId = name.match(/course_(\d+)/)?.[1];
+        return `Course Certificate ${courseId}`;
+      } else if (name.includes('coursecertificate')) {
+        return 'Course Completion Certificate';
+      } else if (name.includes('UC-')) {
+        return 'Udemy Course Certificate';
+      } else if (name.includes('Mindluster')) {
+        return 'Mindluster Certificate';
+      } else if (name.includes('Skilvul')) {
+        return 'Skilvul HTML Basics Certificate';
+      } else {
+        // Generic formatting
+        return name
+          .replace(/[-_]/g, ' ')
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+    };
+
+    const extractMetadataFromFilename = (fileName: string) => {
+      const metadata: CertificateFile['metadata'] = {};
+
+      if (fileName.includes('DQLAB')) {
+        metadata.issuer = 'DQLab';
+        metadata.date = '2024';
+      } else if (fileName.includes('UC-')) {
+        metadata.issuer = 'Udemy';
+        metadata.date = '2024';
+      } else if (fileName.includes('Mindluster')) {
+        metadata.issuer = 'Mindluster';
+        metadata.date = '2024';
+      } else if (fileName.includes('Skilvul')) {
+        metadata.issuer = 'Skilvul';
+        metadata.date = '2024';
+      } else if (fileName.includes('sertifikat_course_')) {
+        metadata.issuer = 'Online Course Platform';
+
+        // Extract date from filename
+        const dateMatch = fileName.match(/(\d{6})/);
+        if (dateMatch) {
+          const dateStr = dateMatch[1];
+          const day = dateStr.substring(0, 2);
+          const month = dateStr.substring(2, 4);
+          const year = '20' + dateStr.substring(4, 6);
+          metadata.date = `${day}/${month}/${year}`;
+        }
+      } else if (fileName.includes('coursecertificate')) {
+        metadata.issuer = 'Course Platform';
+        metadata.date = '2024';
+      }
+
+      return metadata;
+    };
+
+    const loadCertificates = async () => {
+      setLoading(true);
+      try {
+        // Simulate loading delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const certificateData: CertificateFile[] = certificateFiles.map((fileName) => {
+          const id = fileName.replace('.pdf', '');
+          const name = formatCertificateName(fileName);
+          const metadata = extractMetadataFromFilename(fileName);
+
+          return {
+            id,
+            name,
+            fileName,
+            pdfUrl: `/certificates/${fileName}`,
+            metadata
+          };
+        });
+
+        setCertificates(certificateData);
+      } catch (error) {
+        console.error('Error loading certificates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadCertificates();
   }, []);
-
-  const loadCertificates = async () => {
-    setLoading(true);
-    try {
-      // Simulate loading delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const certificateData: CertificateFile[] = certificateFiles.map((fileName, index) => {
-        const id = fileName.replace('.pdf', '');
-        const name = formatCertificateName(fileName);
-        const metadata = extractMetadataFromFilename(fileName);
-        
-        return {
-          id,
-          name,
-          fileName,
-          pdfUrl: `/certificates/${fileName}`,
-          metadata
-        };
-      });
-      
-      setCertificates(certificateData);
-    } catch (error) {
-      console.error('Error loading certificates:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatCertificateName = (fileName: string): string => {
-    // Remove file extension
-    let name = fileName.replace('.pdf', '');
-    
-    // Handle different naming patterns
-    if (name.includes('certificate-DQLAB')) {
-      const code = name.split('DQLAB')[1];
-      return `DQLab Certificate - ${code}`;
-    } else if (name.includes('sertifikat_course_')) {
-      const courseId = name.match(/course_(\d+)/)?.[1];
-      return `Course Certificate ${courseId}`;
-    } else if (name.includes('coursecertificate')) {
-      return 'Course Completion Certificate';
-    } else if (name.includes('UC-')) {
-      return 'Udemy Course Certificate';
-    } else if (name.includes('Mindluster')) {
-      return 'Mindluster Certificate';
-    } else if (name.includes('Skilvul')) {
-      return 'Skilvul HTML Basics Certificate';
-    } else {
-      // Generic formatting
-      return name
-        .replace(/[-_]/g, ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-  };
-
-  const extractMetadataFromFilename = (fileName: string) => {
-    const metadata: any = {};
-    
-    if (fileName.includes('DQLAB')) {
-      metadata.issuer = 'DQLab';
-      metadata.date = '2024';
-    } else if (fileName.includes('UC-')) {
-      metadata.issuer = 'Udemy';
-      metadata.date = '2024';
-    } else if (fileName.includes('Mindluster')) {
-      metadata.issuer = 'Mindluster';
-      metadata.date = '2024';
-    } else if (fileName.includes('Skilvul')) {
-      metadata.issuer = 'Skilvul';
-      metadata.date = '2024';
-    } else if (fileName.includes('sertifikat_course_')) {
-      metadata.issuer = 'Online Course Platform';
-      
-      // Extract date from filename
-      const dateMatch = fileName.match(/(\d{6})/);
-      if (dateMatch) {
-        const dateStr = dateMatch[1];
-        const day = dateStr.substring(0, 2);
-        const month = dateStr.substring(2, 4);
-        const year = '20' + dateStr.substring(4, 6);
-        metadata.date = `${day}/${month}/${year}`;
-      }
-    } else if (fileName.includes('coursecertificate')) {
-      metadata.issuer = 'Course Platform';
-      metadata.date = '2024';
-    }
-    
-    return metadata;
-  };
 
   // Filter certificates based on search
   const filteredCertificates = certificates.filter(cert =>
@@ -209,13 +209,13 @@ const CertificatesSection: React.FC = () => {
   const createCertificatePreview = (name: string, issuer?: string) => {
     const colors = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
     const color = colors[name.length % colors.length];
-    
+
     return (
-      <div 
+      <div
         className="w-full h-full flex flex-col items-center justify-center p-4"
         style={{ background: `linear-gradient(135deg, ${color}20, ${color}10)` }}
       >
-        <div 
+        <div
           className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
           style={{ backgroundColor: color }}
         >
@@ -276,19 +276,19 @@ const CertificatesSection: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={`
                     w-full pl-10 pr-4 py-3 rounded-xl border
-                    ${isDark 
-                      ? 'bg-white/5 border-white/10 text-white placeholder-gray-400' 
+                    ${isDark
+                      ? 'bg-white/5 border-white/10 text-white placeholder-gray-400'
                       : 'bg-black/5 border-black/10 text-gray-900 placeholder-gray-500'
                     }
                     focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200
                   `}
                 />
               </div>
-              
+
               {searchTerm && (
                 <div className="mt-2">
                   <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {currentLanguage.code === 'id' 
+                    {currentLanguage.code === 'id'
                       ? `Ditemukan ${filteredCertificates.length} sertifikat`
                       : `Found ${filteredCertificates.length} certificates`
                     }
@@ -328,7 +328,7 @@ const CertificatesSection: React.FC = () => {
                     {/* Certificate Preview */}
                     <div className="aspect-[3/4] overflow-hidden rounded-t-2xl">
                       {createCertificatePreview(certificate.name, certificate.metadata?.issuer)}
-                      
+
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                         <div className="flex gap-2">
@@ -359,7 +359,7 @@ const CertificatesSection: React.FC = () => {
                         <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                           <Award className="w-5 h-5 text-white" />
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <h3 className={`
                             text-sm font-bold mb-2 line-clamp-2
@@ -367,7 +367,7 @@ const CertificatesSection: React.FC = () => {
                           `}>
                             {certificate.name}
                           </h3>
-                          
+
                           {certificate.metadata?.issuer && (
                             <p className={`
                               text-xs font-medium mb-1
@@ -376,7 +376,7 @@ const CertificatesSection: React.FC = () => {
                               {certificate.metadata.issuer}
                             </p>
                           )}
-                          
+
                           {certificate.metadata?.date && (
                             <p className={`
                               text-xs
@@ -427,7 +427,7 @@ const CertificatesSection: React.FC = () => {
                     } else {
                       page = currentPage - 3 + i;
                     }
-                    
+
                     return (
                       <button
                         key={page}
@@ -473,7 +473,7 @@ const CertificatesSection: React.FC = () => {
           <div className="text-center py-20">
             <GlassCard className="p-8 max-w-md mx-auto">
               <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                {currentLanguage.code === 'id' 
+                {currentLanguage.code === 'id'
                   ? 'Tidak ada sertifikat yang ditemukan'
                   : 'No certificates found'
                 }
@@ -494,7 +494,7 @@ const CertificatesSection: React.FC = () => {
             <GlassCard className="p-8 max-w-md mx-auto">
               <FileText className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                {currentLanguage.code === 'id' 
+                {currentLanguage.code === 'id'
                   ? 'Belum ada sertifikat yang tersedia'
                   : 'No certificates available yet'
                 }
@@ -507,16 +507,16 @@ const CertificatesSection: React.FC = () => {
         {selectedCertificate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div 
+            <div
               className="absolute inset-0 bg-black/80 backdrop-blur-sm"
               onClick={closeCertificate}
             />
-            
+
             {/* Modal Content */}
             <div className={`
               relative max-w-6xl w-full max-h-[90vh] overflow-hidden rounded-2xl
-              ${isDark 
-                ? 'bg-gray-900/95 border-white/20' 
+              ${isDark
+                ? 'bg-gray-900/95 border-white/20'
                 : 'bg-white/95 border-black/10'
               } 
               backdrop-blur-md border animate-fade-in shadow-2xl
@@ -554,8 +554,8 @@ const CertificatesSection: React.FC = () => {
                     onClick={closeCertificate}
                     className={`
                       w-10 h-10 rounded-lg
-                      ${isDark 
-                        ? 'bg-white/10 hover:bg-white/20 text-white' 
+                      ${isDark
+                        ? 'bg-white/10 hover:bg-white/20 text-white'
                         : 'bg-black/10 hover:bg-black/20 text-gray-900'
                       } 
                       flex items-center justify-center transition-colors duration-200
@@ -576,7 +576,7 @@ const CertificatesSection: React.FC = () => {
                         {currentLanguage.code === 'id' ? 'Gagal memuat PDF' : 'Failed to load PDF'}
                       </p>
                       <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {currentLanguage.code === 'id' 
+                        {currentLanguage.code === 'id'
                           ? 'File PDF mungkin tidak tersedia atau rusak'
                           : 'PDF file might not be available or corrupted'
                         }
@@ -623,7 +623,7 @@ const CertificatesSection: React.FC = () => {
                   {currentLanguage.code === 'id' ? 'Total Sertifikat' : 'Total Certificates'}
                 </div>
               </GlassCard>
-              
+
               <GlassCard className="p-6 text-center">
                 <div className={`
                   text-3xl font-bold mb-2 text-blue-500
@@ -637,7 +637,7 @@ const CertificatesSection: React.FC = () => {
                   {currentLanguage.code === 'id' ? 'Penerbit' : 'Issuers'}
                 </div>
               </GlassCard>
-              
+
               <GlassCard className="p-6 text-center">
                 <div className={`
                   text-3xl font-bold mb-2 text-green-500
@@ -651,7 +651,7 @@ const CertificatesSection: React.FC = () => {
                   {currentLanguage.code === 'id' ? 'Tahun Terbaru' : 'Latest Year'}
                 </div>
               </GlassCard>
-              
+
               <GlassCard className="p-6 text-center">
                 <div className={`
                   text-3xl font-bold mb-2 text-purple-500

@@ -31,12 +31,12 @@ const CERTIFICATE_FILES = [
 
 export async function getCertificateFiles(): Promise<CertificateFile[]> {
   const certificates: CertificateFile[] = [];
-  
+
   for (const fileName of CERTIFICATE_FILES) {
     try {
       // Check if file exists by trying to fetch it
       const response = await fetch(`/certificates/${fileName}`, { method: 'HEAD' });
-      
+
       if (response.ok) {
         const id = fileName.replace('.pdf', '');
         const name = fileName
@@ -44,7 +44,7 @@ export async function getCertificateFiles(): Promise<CertificateFile[]> {
           .split('-')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
-        
+
         certificates.push({
           id,
           name,
@@ -57,7 +57,7 @@ export async function getCertificateFiles(): Promise<CertificateFile[]> {
       console.warn(`Certificate file ${fileName} not found:`, error);
     }
   }
-  
+
   return certificates;
 }
 
@@ -66,8 +66,8 @@ export async function extractTextFromPDF(pdfUrl: string): Promise<string> {
     // This is a simplified version - in a real implementation,
     // you might want to use a more robust PDF text extraction library
     const response = await fetch(pdfUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    
+    await response.arrayBuffer();
+
     // For now, return a placeholder - you can integrate with PDF.js or similar
     return 'Text extraction from PDF would be implemented here using PDF.js or similar library';
   } catch (error) {
@@ -78,7 +78,7 @@ export async function extractTextFromPDF(pdfUrl: string): Promise<string> {
 
 export function parseCertificateMetadata(text: string): CertificateFile['metadata'] {
   const metadata: CertificateFile['metadata'] = {};
-  
+
   // Simple regex patterns to extract common certificate information
   const patterns = {
     issuer: /(?:issued by|from|by)\s+([A-Za-z\s]+)(?:\n|$)/i,
@@ -86,19 +86,19 @@ export function parseCertificateMetadata(text: string): CertificateFile['metadat
     title: /(?:certificate of|certification in|course:)\s+([A-Za-z\s]+)/i,
     recipient: /(?:awarded to|presented to|this certifies that)\s+([A-Za-z\s]+)/i
   };
-  
+
   for (const [key, pattern] of Object.entries(patterns)) {
     const match = text.match(pattern);
     if (match && match[1]) {
       metadata[key as keyof CertificateFile['metadata']] = match[1].trim();
     }
   }
-  
+
   return metadata;
 }
 
 // Generate thumbnail from PDF first page
-export async function generatePDFThumbnail(pdfUrl: string): Promise<string> {
+export async function generatePDFThumbnail(_pdfUrl: string): Promise<string> {
   try {
     // This would use PDF.js to render the first page as an image
     // For now, return a placeholder

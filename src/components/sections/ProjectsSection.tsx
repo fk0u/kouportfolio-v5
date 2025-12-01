@@ -1,9 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, Github, Star, GitFork } from 'lucide-react';
+import { ExternalLink, Github, Star } from 'lucide-react';
 import { getGitHubStats } from '../../lib/github';
 
+interface GitHubStats {
+  user: {
+    avatar_url: string;
+    login: string;
+  };
+  totalStars: number;
+  totalForks: number;
+  totalRepos: number;
+  languagesCount: number;
+  topRepos: Array<{
+    id: number;
+    name: string;
+    description: string;
+    html_url: string;
+    stargazers_count: number;
+    language: string;
+    updated_at: string;
+  }>;
+}
+
 const ProjectsSection: React.FC = () => {
-  const [githubData, setGithubData] = useState<any>(null);
+  const [githubData, setGithubData] = useState<GitHubStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -79,9 +99,8 @@ const ProjectsSection: React.FC = () => {
           {featuredProjects.map((project, index) => (
             <div
               key={project.title}
-              className={`glass-surface p-8 rounded-xl hover:scale-105 transition-all duration-300 ${
-                index === 0 ? 'lg:col-span-2' : ''
-              }`}
+              className={`glass-surface p-8 rounded-xl hover:scale-105 transition-all duration-300 ${index === 0 ? 'lg:col-span-2' : ''
+                }`}
             >
               <div className="flex items-start justify-between mb-6">
                 <h3 className="font-satoshi text-2xl font-bold text-text-primary">
@@ -104,11 +123,11 @@ const ProjectsSection: React.FC = () => {
                   </a>
                 </div>
               </div>
-              
+
               <p className="font-inter text-text-secondary mb-6 leading-relaxed">
                 {project.description}
               </p>
-              
+
               <div className="flex flex-wrap gap-2">
                 {project.tech.map((tech) => (
                   <span
@@ -129,7 +148,7 @@ const ProjectsSection: React.FC = () => {
             <h3 className="font-satoshi text-2xl font-bold text-center mb-8">
               <span className="anima-gradient">GitHub Analytics</span>
             </h3>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
               <div className="text-center">
                 <div className="text-3xl font-bold anima-gradient mb-2">
@@ -139,7 +158,7 @@ const ProjectsSection: React.FC = () => {
                   Repositories
                 </div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-3xl font-bold anima-gradient mb-2">
                   {githubData.totalStars}
@@ -148,7 +167,7 @@ const ProjectsSection: React.FC = () => {
                   Stars Earned
                 </div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-3xl font-bold anima-gradient mb-2">
                   {githubData.totalForks}
@@ -157,7 +176,7 @@ const ProjectsSection: React.FC = () => {
                   Forks
                 </div>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-3xl font-bold anima-gradient mb-2">
                   {githubData.languagesCount}
@@ -175,9 +194,9 @@ const ProjectsSection: React.FC = () => {
                   <span className="text-text-primary">Recent </span>
                   <span className="anima-gradient">Repositories</span>
                 </h4>
-                
+
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {githubData.topRepos.slice(0, 6).map((repo: any) => (
+                  {githubData.topRepos.slice(0, 6).map((repo) => (
                     <a
                       key={repo.id}
                       href={repo.html_url}
@@ -194,11 +213,11 @@ const ProjectsSection: React.FC = () => {
                           <span>{repo.stargazers_count}</span>
                         </div>
                       </div>
-                      
+
                       <p className="font-inter text-xs text-text-secondary mb-3 line-clamp-2">
                         {repo.description || 'No description available'}
                       </p>
-                      
+
                       {repo.language && (
                         <div className="flex items-center space-x-2">
                           <div

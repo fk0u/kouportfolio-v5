@@ -44,7 +44,7 @@ const AboutSection: React.FC = () => {
 
         {/* Philosophy Cards */}
         <div className="grid md:grid-cols-2 gap-8 mb-20">
-          {philosophies.map((philosophy, index) => {
+          {philosophies.map((philosophy) => {
             const Icon = philosophy.icon;
             return (
               <div
@@ -78,9 +78,9 @@ const AboutSection: React.FC = () => {
             <span className="text-text-primary">Core </span>
             <span className="anima-gradient">Competencies</span>
           </h3>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {skills.map((skill, index) => {
+            {skills.map((skill) => {
               const Icon = skill.icon;
               return (
                 <div
@@ -93,14 +93,14 @@ const AboutSection: React.FC = () => {
                       {skill.name}
                     </h4>
                   </div>
-                  
+
                   <div className="w-full bg-bg-primary rounded-full h-2 mb-2">
                     <div
                       className="anima-gradient-bg h-2 rounded-full transition-all duration-1000"
                       style={{ width: `${skill.level}%` }}
                     ></div>
                   </div>
-                  
+
                   <div className="text-right">
                     <span className="font-mono text-sm text-text-secondary">
                       {skill.level}%
@@ -118,12 +118,12 @@ const AboutSection: React.FC = () => {
             <span className="anima-gradient">Beyond the Code</span>
           </h3>
           <p className="font-inter text-text-secondary leading-relaxed max-w-3xl mx-auto">
-            When I'm not architecting digital experiences, you'll find me exploring the intersection 
-            of technology and art. I'm an otaku who finds inspiration in anime storytelling, 
-            a K-pop enthusiast who appreciates creative production, and a coffee lover who 
+            When I'm not architecting digital experiences, you'll find me exploring the intersection
+            of technology and art. I'm an otaku who finds inspiration in anime storytelling,
+            a K-pop enthusiast who appreciates creative production, and a coffee lover who
             believes the best ideas brew over a perfect cup.
           </p>
-          
+
           <div className="mt-6 font-mono text-sm text-text-secondary">
             <span className="text-anima-cyan">// </span>
             Started coding at age 13 • Self-taught • Always learning

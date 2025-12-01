@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, Globe, Loader, Star, Award, Code, User } from 'lucide-react';
+import { Download, FileText, Loader, Star, Award } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { downloadCV } from '../lib/cvGenerator';
@@ -14,7 +14,7 @@ const CVDownloadButton: React.FC = () => {
   const handleDownload = async (language: 'en' | 'id') => {
     setIsGenerating(true);
     setShowOptions(false);
-    
+
     try {
       // Add a small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -45,10 +45,10 @@ const CVDownloadButton: React.FC = () => {
         >
           {/* Background Animation */}
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
+
           {/* Shimmer Effect */}
           <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-          
+
           <div className="relative z-10 flex items-center gap-3">
             {isGenerating ? (
               <>
@@ -77,11 +77,11 @@ const CVDownloadButton: React.FC = () => {
       {showOptions && !isGenerating && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop with highest z-index */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowOptions(false)}
           />
-          
+
           {/* Modal Content with highest z-index */}
           <div className="relative z-[10000] max-w-md w-full animate-fade-in">
             <GlassCard className="p-6 shadow-2xl border-2 border-white/20">
@@ -95,21 +95,21 @@ const CVDownloadButton: React.FC = () => {
                     </h3>
                   </div>
                   <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {currentLanguage.code === 'id' 
+                    {currentLanguage.code === 'id'
                       ? 'CV profesional dengan desain modern dan elegan'
                       : 'Professional CV with modern and elegant design'
                     }
                   </p>
                 </div>
-                
+
                 {/* Language Options */}
                 <div className="space-y-3">
                   <button
                     onClick={() => handleDownload('en')}
                     className={`
                       w-full group flex items-center gap-4 p-4 rounded-xl transition-all duration-300
-                      ${isDark 
-                        ? 'hover:bg-white/10 bg-white/5 border border-white/10' 
+                      ${isDark
+                        ? 'hover:bg-white/10 bg-white/5 border border-white/10'
                         : 'hover:bg-blue-50 bg-gray-50 border border-gray-200'
                       }
                       hover:scale-105 hover:shadow-lg
@@ -136,13 +136,13 @@ const CVDownloadButton: React.FC = () => {
                     </div>
                     <Download className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'} group-hover:text-blue-500 transition-colors duration-200`} />
                   </button>
-                  
+
                   <button
                     onClick={() => handleDownload('id')}
                     className={`
                       w-full group flex items-center gap-4 p-4 rounded-xl transition-all duration-300
-                      ${isDark 
-                        ? 'hover:bg-white/10 bg-white/5 border border-white/10' 
+                      ${isDark
+                        ? 'hover:bg-white/10 bg-white/5 border border-white/10'
                         : 'hover:bg-red-50 bg-gray-50 border border-gray-200'
                       }
                       hover:scale-105 hover:shadow-lg
@@ -176,37 +176,37 @@ const CVDownloadButton: React.FC = () => {
                   <p className={`text-xs font-medium mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                     {currentLanguage.code === 'id' ? 'Fitur CV:' : 'CV Features:'}
                   </p>
-                  
+
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                       <div className="w-2 h-2 rounded-full bg-green-500"></div>
                       {currentLanguage.code === 'id' ? 'Desain Modern' : 'Modern Design'}
                     </div>
-                    
+
                     <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                       <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                       {currentLanguage.code === 'id' ? 'Data Lengkap' : 'Complete Data'}
                     </div>
-                    
+
                     <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                       <div className="w-2 h-2 rounded-full bg-purple-500"></div>
                       {currentLanguage.code === 'id' ? 'GitHub Stats' : 'GitHub Stats'}
                     </div>
-                    
+
                     <div className={`flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                       <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                       {currentLanguage.code === 'id' ? 'Format PDF' : 'PDF Format'}
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Close button */}
                 <button
                   onClick={() => setShowOptions(false)}
                   className={`
                     w-full mt-4 py-3 text-sm rounded-lg transition-colors duration-200 font-medium
-                    ${isDark 
-                      ? 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10' 
+                    ${isDark
+                      ? 'text-gray-400 hover:text-white hover:bg-white/5 border border-white/10'
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 border border-gray-200'
                     }
                   `}

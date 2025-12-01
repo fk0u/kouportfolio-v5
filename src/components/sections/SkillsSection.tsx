@@ -22,7 +22,7 @@ const SkillsSection: React.FC = () => {
     ]
   };
 
-  const getRandomDelay = () => Math.random() * 0.5;
+
 
   return (
     <section id="skills" className="py-20">
@@ -49,7 +49,7 @@ const SkillsSection: React.FC = () => {
               <h3 className="font-satoshi text-xl font-bold mb-6 text-center">
                 <span className="anima-gradient">{category}</span>
               </h3>
-              
+
               <div className="space-y-3">
                 {technologies.map((tech, index) => (
                   <div
@@ -62,9 +62,8 @@ const SkillsSection: React.FC = () => {
                       {[...Array(3)].map((_, i) => (
                         <div
                           key={i}
-                          className={`w-2 h-2 rounded-full ${
-                            i < 2 ? 'bg-anima-cyan' : 'bg-text-secondary/30'
-                          }`}
+                          className={`w-2 h-2 rounded-full ${i < 2 ? 'bg-anima-cyan' : 'bg-text-secondary/30'
+                            }`}
                         ></div>
                       ))}
                     </div>
@@ -87,7 +86,7 @@ const SkillsSection: React.FC = () => {
               digitalArchitect.ts
             </span>
           </div>
-          
+
           <div className="font-mono text-sm space-y-2">
             <div>
               <span className="text-anima-cyan">class</span>

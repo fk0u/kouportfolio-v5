@@ -11,7 +11,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [step, setStep] = useState<'intro' | 'language' | 'loading' | 'cli'>('intro');
   const [cliText, setCliText] = useState('');
   const [introProgress, setIntroProgress] = useState(0);
-  const { setLanguage, t } = useLanguage();
+  const { setLanguage } = useLanguage();
   const { isDark } = useTheme();
 
   const cliCommands = [
@@ -55,7 +55,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const handleLanguageSelect = (lang: typeof languages[0]) => {
     setLanguage(lang);
     setStep('loading');
-    
+
     // Start CLI animation
     setTimeout(() => {
       setStep('cli');
@@ -66,11 +66,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const animateCLI = () => {
     let commandIndex = 0;
     let charIndex = 0;
-    
+
     const typeCommand = () => {
       if (commandIndex < cliCommands.length) {
         const currentCommand = cliCommands[commandIndex];
-        
+
         if (charIndex <= currentCommand.length) {
           setCliText(prev => prev + (currentCommand[charIndex] || '\n'));
           charIndex++;
@@ -85,11 +85,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         setTimeout(onComplete, 1500);
       }
     };
-    
+
     typeCommand();
   };
 
-  const bgGradient = isDark 
+  const bgGradient = isDark
     ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900'
     : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
 
@@ -118,10 +118,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Animated gradient orbs */}
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full blur-3xl animate-bounce" 
-           style={{ animationDuration: '4s' }} />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-green-500/25 to-blue-500/25 rounded-full blur-2xl animate-spin" 
-           style={{ animationDuration: '8s' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full blur-3xl animate-bounce"
+        style={{ animationDuration: '4s' }} />
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-green-500/25 to-blue-500/25 rounded-full blur-2xl animate-spin"
+        style={{ animationDuration: '8s' }} />
     </div>
   );
 
@@ -129,7 +129,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <div className={`fixed inset-0 z-50 ${bgGradient} flex items-center justify-center transition-all duration-1000 overflow-hidden`}>
       <InteractiveBackground />
       <FloatingParticles />
-      
+
       {/* Intro Step */}
       {step === 'intro' && (
         <div className="relative z-10 text-center space-y-8 animate-fade-in">
@@ -146,7 +146,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                   </span>
                 </div>
               </div>
-              
+
               {/* Floating icons around logo */}
               <div className="absolute inset-0 animate-spin" style={{ animationDuration: '10s' }}>
                 <Code className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-6 h-6 text-blue-400 animate-bounce" />
@@ -171,7 +171,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 w-full h-2 rounded-full overflow-hidden
                 ${isDark ? 'bg-white/20' : 'bg-black/20'}
               `}>
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-100 ease-out"
                   style={{ width: `${introProgress}%` }}
                 />
@@ -193,7 +193,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 animate-float">
                 <Globe className="w-12 h-12 text-white animate-spin" style={{ animationDuration: '3s' }} />
               </div>
-              
+
               {/* Orbiting hearts */}
               <div className="absolute inset-0 animate-spin" style={{ animationDuration: '6s' }}>
                 <Heart className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 text-red-400 animate-pulse" />
@@ -212,7 +212,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-6 justify-center">
             {languages.map((lang, index) => (
               <button
@@ -249,7 +249,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
                 <div className="absolute inset-2 border-4 border-transparent border-t-blue-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
               </div>
-              
+
               {/* Pulsing dots */}
               <div className="flex justify-center gap-2 mt-4">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -290,7 +290,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 <span className="text-white/50 text-sm">Building magic...</span>
               </div>
             </div>
-            
+
             {/* Terminal Content */}
             <div className="p-6 h-80 overflow-hidden">
               <div className="text-green-400 font-mono text-sm whitespace-pre-line leading-relaxed">
@@ -299,7 +299,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
               </div>
             </div>
           </div>
-          
+
           {/* Progress indicator */}
           <div className="mt-6 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
